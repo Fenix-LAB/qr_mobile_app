@@ -5,27 +5,14 @@
         <ion-buttons slot="start">
           <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <ion-segment :value="segment" @ionChange="updateSegment">
+        <!-- <ion-segment :value="segment" @ionChange="updateSegment">
           <ion-segment-button value="all">QR Reader</ion-segment-button>
           <ion-segment-button value="favorites">History</ion-segment-button>
-        </ion-segment>
+        </ion-segment> -->
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Schedule</ion-title>
-        </ion-toolbar>
-        <ion-toolbar>
-          <ion-searchbar
-            v-model="queryText"
-            :debounce="500"
-            @ionInput="updateSearchTerm"
-            placeholder="Search"
-          ></ion-searchbar>
-        </ion-toolbar>
-      </ion-header>
 
       <!-- Sección de escaneo de QR -->
       <ion-header>
@@ -130,6 +117,8 @@ async function scanQR() {
 
     console.log("Preparación de cámara exitosa");
 
+    // BarcodeScanner.hideBackground();
+
     const result = await BarcodeScanner.startScan();
     if (result.hasContent) {
       scannedData.value = result.content;
@@ -144,14 +133,6 @@ async function scanQR() {
 
 
 // Manejo de eventos
-const updateSegment = (e: CustomEvent) => {
-  segment.value = e.detail.value;
-};
-
-const updateSearchTerm = (e: CustomEvent) => {
-  queryText.value = (e.target as HTMLInputElement).value;
-};
-
 const openSocial = (network: string) => {
   console.log(`Posting to ${network}`);
 };
