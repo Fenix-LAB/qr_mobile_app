@@ -5,10 +5,6 @@
         <ion-buttons slot="start">
           <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <!-- <ion-segment :value="segment" @ionChange="updateSegment">
-          <ion-segment-button value="all">QR Reader</ion-segment-button>
-          <ion-segment-button value="favorites">History</ion-segment-button>
-        </ion-segment> -->
       </ion-toolbar>
     </ion-header>
 
@@ -66,11 +62,8 @@ import {
   IonToolbar,
   IonButtons,
   IonMenuButton,
-  IonSegment,
-  IonSegmentButton,
   IonButton,
   IonIcon,
-  IonSearchbar,
   IonContent,
   IonFab,
   IonFabButton,
@@ -88,8 +81,6 @@ import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 // Variables reactivas
 const scannedData = ref<string | null>(null);
-const segment = ref("all");
-const queryText = ref("");
 
 // Función para escanear QR
 async function checkPermissions() {
@@ -117,7 +108,7 @@ async function scanQR() {
 
     console.log("Preparación de cámara exitosa");
 
-    // BarcodeScanner.hideBackground();
+    BarcodeScanner.showBackground(); // Muestra la cámara en segundo plano
 
     const result = await BarcodeScanner.startScan();
     if (result.hasContent) {
@@ -152,5 +143,7 @@ const openSocial = (network: string) => {
   text-align: center;
   border-radius: 10px;
   margin-bottom: 10px;
+  position: relative;
+  z-index: 10;
 }
 </style>
