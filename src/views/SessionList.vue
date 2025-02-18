@@ -104,11 +104,13 @@ async function scanQR() {
       return;
     }
 
-    await BarcodeScanner.prepare(); // Prepara la cámara
+    // Hacer que la cámara sea visible en el fondo
+    document.querySelector("body")?.classList.add("scanner-active");
+
+    BarcodeScanner.hideBackground();
+    await BarcodeScanner.prepare();
 
     console.log("Preparación de cámara exitosa");
-
-    BarcodeScanner.showBackground(); // Muestra la cámara en segundo plano
 
     const result = await BarcodeScanner.startScan();
     if (result.hasContent) {
@@ -117,10 +119,18 @@ async function scanQR() {
     } else {
       console.log("No se detectó ningún código.");
     }
+
+    // Quitar la clase después del escaneo
+    document.querySelector("body")?.classList.remove("scanner-active");
+    BarcodeScanner.showBackground();
+
   } catch (error) {
     console.error("Error al iniciar el escaneo:", error);
+    document.querySelector("body")?.classList.remove("scanner-active");
+    BarcodeScanner.showBackground();
   }
 }
+
 
 
 // Manejo de eventos
