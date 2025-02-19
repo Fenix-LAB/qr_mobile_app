@@ -5,29 +5,18 @@
         <ion-buttons slot="start">
           <ion-menu-button></ion-menu-button>
         </ion-buttons>
+        <ion-title>Escanear QR</ion-title>
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" class="scanner-content">
+      <!-- Cuadro de la cámara (siempre visible en esta vista) -->
+      <div class="camera-overlay">
+        <p>Apunta al código QR</p>
+      </div>
 
-      <!-- Sección de escaneo de QR -->
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Escanear QR</ion-title>
-        </ion-toolbar>
-      </ion-header>
-
-      <ion-content class="ion-padding">
-        <!-- Cuadro de la cámara (siempre visible) -->
-        <div class="camera-overlay">
-          <p>Apunta al código QR</p>
-        </div>
-
-        <!-- Botón debajo del cuadro -->
-        <ion-button expand="full" @click="scanQR">Escanear QR</ion-button>
-
-        <ion-text v-if="scannedData">Código escaneado: {{ scannedData }}</ion-text>
-      </ion-content>
+      <!-- Texto del código escaneado -->
+      <ion-text v-if="scannedData">Código escaneado: {{ scannedData }}</ion-text>
 
       <!-- FAB de redes sociales -->
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
@@ -54,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -62,7 +51,6 @@ import {
   IonToolbar,
   IonButtons,
   IonMenuButton,
-  IonButton,
   IonIcon,
   IonContent,
   IonFab,
@@ -77,40 +65,36 @@ import {
   logoTwitter,
   logoFacebook
 } from "ionicons/icons";
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from "@capacitor-community/barcode-scanner";
 
-// Variables reactivas
 const scannedData = ref<string | null>(null);
 
-// Función para escanear QR
+// Función para verificar permisos
 async function checkPermissions() {
   const status = await BarcodeScanner.checkPermission({ force: true });
 
-  if (status.granted) {
-    return true;
-  } else if (status.denied) {
+  if (status.granted) return true;
+
+  if (status.denied) {
     console.error("Permiso de cámara denegado permanentemente.");
   } else {
     console.error("Permiso de cámara no concedido.");
   }
+
   return false;
 }
 
-async function scanQR() {
+// Función para iniciar el escaneo automáticamente
+async function startScanning() {
   try {
     const hasPermission = await checkPermissions();
-    if (!hasPermission) {
-      console.error("No se tienen permisos de cámara.");
-      return;
-    }
+    if (!hasPermission) return;
 
-    // Hacer que la cámara sea visible en el fondo
-    document.querySelector("body")?.classList.add("scanner-active");
-
+    document.body.classList.add("scanner-active");
     BarcodeScanner.hideBackground();
     await BarcodeScanner.prepare();
 
-    console.log("Preparación de cámara exitosa");
+    console.log("Cámara activada en el background");
 
     const result = await BarcodeScanner.startScan();
     if (result.hasContent) {
@@ -119,21 +103,29 @@ async function scanQR() {
     } else {
       console.log("No se detectó ningún código.");
     }
-
-    // Quitar la clase después del escaneo
-    document.querySelector("body")?.classList.remove("scanner-active");
-    BarcodeScanner.showBackground();
-
   } catch (error) {
-    console.error("Error al iniciar el escaneo:", error);
-    document.querySelector("body")?.classList.remove("scanner-active");
-    BarcodeScanner.showBackground();
+    console.error("Error al escanear:", error);
   }
 }
 
+// Función para detener el escáner al salir de la página
+async function stopScanning() {
+  document.body.classList.remove("scanner-active");
+  BarcodeScanner.showBackground();
+  BarcodeScanner.stopScan();
+  console.log("Cámara desactivada");
+}
 
+// Manejo de ciclo de vida
+onMounted(() => {
+  startScanning();
+});
 
-// Manejo de eventos
+onBeforeUnmount(() => {
+  stopScanning();
+});
+
+// Manejo de eventos sociales
 const openSocial = (network: string) => {
   console.log(`Posting to ${network}`);
 };
@@ -155,5 +147,11 @@ const openSocial = (network: string) => {
   margin-bottom: 10px;
   position: relative;
   z-index: 10;
+}
+
+/* Estilos específicos para esta vista */
+.scanner-content {
+  --background: transparent;
+  --ion-background-color: transparent;
 }
 </style>
