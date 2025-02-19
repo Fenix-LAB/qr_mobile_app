@@ -166,6 +166,7 @@ const openSocial = (network: string) => {
 </script>
 
 <style scoped>
+/* Estilos generales */
 .camera-container {
   width: 100%;
   height: 50vh;
@@ -174,6 +175,7 @@ const openSocial = (network: string) => {
   display: flex;
   justify-content: center;
   align-items: center;
+  background: transparent !important; /* Fondo transparente */
 }
 
 .camera-overlay {
@@ -181,6 +183,7 @@ const openSocial = (network: string) => {
   height: 70%; /* Tamaño reducido */
   position: relative;
   border: 4px solid rgba(255, 255, 255, 0.7); /* Borde más grueso y menos transparente */
+  background: transparent !important; /* Fondo transparente */
 }
 
 .corner {
@@ -188,6 +191,7 @@ const openSocial = (network: string) => {
   width: 30px; /* Aumentamos el tamaño de las esquinas */
   height: 30px; /* Aumentamos el tamaño de las esquinas */
   border: 4px solid white; /* Borde más grueso */
+  background: transparent !important; /* Fondo transparente */
 }
 
 .corner.top-left {
@@ -238,12 +242,36 @@ const openSocial = (network: string) => {
 
 /* Estilos específicos para esta vista */
 .scanner-content {
-  --background: transparent;
-  --ion-background-color: transparent;
+  --background: transparent !important; /* Fondo transparente */
+  --ion-background-color: transparent !important; /* Anular el fondo de Ionic */
 }
 
 /* 🔥 Asegura que el video de la cámara no afecte otras vistas */
 body:not(.scanner-active) {
-  background: var(--ion-background-color, #fff) !important;
+  background: transparent !important; /* Fondo transparente */
+}
+
+/* Estilos para el modo oscuro */
+.ion-palette-dark .camera-container,
+.ion-palette-dark .camera-overlay,
+.ion-palette-dark .corner {
+  background: transparent !important; /* Fondo transparente en modo oscuro */
+}
+
+.ion-palette-dark .camera-overlay {
+  border-color: rgba(255, 255, 255, 0.7); /* Mantener el borde visible en modo oscuro */
+}
+
+.ion-palette-dark .corner {
+  border-color: white; /* Mantener las esquinas visibles en modo oscuro */
+}
+
+.ion-palette-dark .scanner-content {
+  --background: transparent !important; /* Fondo transparente en modo oscuro */
+  --ion-background-color: transparent !important; /* Anular el fondo de Ionic en modo oscuro */
+}
+
+.ion-palette-dark body:not(.scanner-active) {
+  background: transparent !important; /* Fondo transparente en modo oscuro */
 }
 </style>

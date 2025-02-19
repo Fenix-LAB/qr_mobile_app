@@ -9,10 +9,10 @@
           <ion-label>QR</ion-label>
         </ion-tab-button>
 
-        <!-- <ion-tab-button tab="speakers" href="/tabs/speakers">
-          <ion-icon :icon="people" />
-          <ion-label>Speakers</ion-label>
-        </ion-tab-button> -->
+        <ion-tab-button tab="speakers" href="/tabs/speakers">
+          <ion-icon :icon="receiptOutline" />
+          <ion-label>Historial</ion-label>
+        </ion-tab-button>
 
         <!-- <ion-tab-button tab="map" href="/tabs/map">
           <ion-icon :icon="location" />
@@ -44,7 +44,8 @@ import {
   people,
   location,
   informationCircle,
-  qrCodeOutline
+  qrCodeOutline,
+  receiptOutline
 } from 'ionicons/icons';
 
 export default {
@@ -62,7 +63,8 @@ export default {
       people,
       location,
       informationCircle,
-      qrCodeOutline
+      qrCodeOutline,
+      receiptOutline
     };
   },
 };
