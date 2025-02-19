@@ -12,9 +12,20 @@
     <ion-content :fullscreen="true" class="scanner-content">
       <!-- Contenedor para el video de la cámara -->
       <div id="camera-container" class="camera-container">
+        <!-- Overlay con esquinas -->
         <div class="camera-overlay">
-          <p>Apunta al código QR</p>
+          <div class="corner top-left"></div>
+          <div class="corner top-right"></div>
+          <div class="corner bottom-left"></div>
+          <div class="corner bottom-right"></div>
         </div>
+      </div>
+
+      <!-- Botón de la linterna -->
+      <div class="flashlight-button-container">
+        <ion-button @click="toggleFlashlight" class="flashlight-button">
+          <ion-icon :icon="flashlightIcon"></ion-icon>
+        </ion-button>
       </div>
 
       <!-- Texto del código escaneado -->
@@ -58,18 +69,22 @@ import {
   IonFab,
   IonFabButton,
   IonFabList,
-  IonText
+  IonText,
+  IonButton,
 } from "@ionic/vue";
 import {
   shareSocial,
   logoVenmo,
   logoGoogle,
   logoTwitter,
-  logoFacebook
+  logoFacebook,
+  flashlightOutline,
 } from "ionicons/icons";
 import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
 
 const scannedData = ref<string | null>(null);
+const flashlightIcon = ref(flashlightOutline); // Icono de la linterna
+const isFlashlightOn = ref(false); // Estado de la linterna
 
 // Función para verificar permisos
 async function checkPermissions() {
@@ -117,8 +132,22 @@ async function stopScanning() {
   BarcodeScanner.showBackground();
   await BarcodeScanner.stopScan(); // 🔥 Asegura que el escáner se detiene completamente
   await BarcodeScanner.disableTorch(); // Apagar linterna si está activa
-  // await BarcodeScanner.destroy(); // 🔥 Elimina completamente el escáner
   console.log("Cámara desactivada");
+}
+
+// Función para encender/apagar la linterna
+async function toggleFlashlight() {
+  try {
+    if (isFlashlightOn.value) {
+      await BarcodeScanner.disableTorch();
+      isFlashlightOn.value = false;
+    } else {
+      await BarcodeScanner.enableTorch();
+      isFlashlightOn.value = true;
+    }
+  } catch (error) {
+    console.error("Error al controlar la linterna:", error);
+  }
 }
 
 // Manejo de ciclo de vida
@@ -142,24 +171,69 @@ const openSocial = (network: string) => {
   height: 50vh;
   position: relative;
   overflow: hidden;
-}
-
-.camera-overlay {
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  border-radius: 10px;
+}
+
+.camera-overlay {
+  width: 70%; /* Tamaño reducido */
+  height: 70%; /* Tamaño reducido */
+  position: relative;
+  border: 4px solid rgba(255, 255, 255, 0.7); /* Borde más grueso y menos transparente */
+}
+
+.corner {
   position: absolute;
+  width: 30px; /* Aumentamos el tamaño de las esquinas */
+  height: 30px; /* Aumentamos el tamaño de las esquinas */
+  border: 4px solid white; /* Borde más grueso */
+}
+
+.corner.top-left {
   top: 0;
   left: 0;
-  z-index: 10;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner.top-right {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+}
+
+.corner.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
+
+.flashlight-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.flashlight-button {
+  --background: rgba(255, 255, 255, 0.9); /* Fondo sólido con poca transparencia */
+  --border-radius: 50%;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  width: 50px;
+  height: 50px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
 }
 
 /* Estilos específicos para esta vista */
