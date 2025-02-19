@@ -150,10 +150,10 @@
   --ion-color-navigation: #6600cc;
 }
 
-body.scanner-active {
+/* body.scanner-active {
   --background: transparent;
   --ion-background-color: transparent;
-}
+} */
 
 /*
  * App iOS Variables

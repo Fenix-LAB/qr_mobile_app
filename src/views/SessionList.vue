@@ -10,9 +10,11 @@
     </ion-header>
 
     <ion-content :fullscreen="true" class="scanner-content">
-      <!-- Cuadro de la cámara (siempre visible en esta vista) -->
-      <div class="camera-overlay">
-        <p>Apunta al código QR</p>
+      <!-- Contenedor para el video de la cámara -->
+      <div id="camera-container" class="camera-container">
+        <div class="camera-overlay">
+          <p>Apunta al código QR</p>
+        </div>
       </div>
 
       <!-- Texto del código escaneado -->
@@ -65,7 +67,7 @@ import {
   logoTwitter,
   logoFacebook
 } from "ionicons/icons";
-import { BarcodeScanner } from "@capacitor-community/barcode-scanner";
+import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
 
 const scannedData = ref<string | null>(null);
 
@@ -90,13 +92,14 @@ async function startScanning() {
     const hasPermission = await checkPermissions();
     if (!hasPermission) return;
 
+    // Activar cámara solo en esta vista
     document.body.classList.add("scanner-active");
     BarcodeScanner.hideBackground();
     await BarcodeScanner.prepare();
 
     console.log("Cámara activada en el background");
 
-    const result = await BarcodeScanner.startScan();
+    const result = await BarcodeScanner.startScan({ targetedFormats: [SupportedFormat.QR_CODE] });
     if (result.hasContent) {
       scannedData.value = result.content;
       console.log("Código escaneado:", result.content);
@@ -112,7 +115,9 @@ async function startScanning() {
 async function stopScanning() {
   document.body.classList.remove("scanner-active");
   BarcodeScanner.showBackground();
-  BarcodeScanner.stopScan();
+  await BarcodeScanner.stopScan(); // 🔥 Asegura que el escáner se detiene completamente
+  await BarcodeScanner.disableTorch(); // Apagar linterna si está activa
+  // await BarcodeScanner.destroy(); // 🔥 Elimina completamente el escáner
   console.log("Cámara desactivada");
 }
 
@@ -132,9 +137,16 @@ const openSocial = (network: string) => {
 </script>
 
 <style scoped>
-.camera-overlay {
+.camera-container {
   width: 100%;
   height: 50vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.camera-overlay {
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.7);
   color: white;
   font-size: 18px;
@@ -144,8 +156,9 @@ const openSocial = (network: string) => {
   align-items: center;
   text-align: center;
   border-radius: 10px;
-  margin-bottom: 10px;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   z-index: 10;
 }
 
@@ -153,5 +166,10 @@ const openSocial = (network: string) => {
 .scanner-content {
   --background: transparent;
   --ion-background-color: transparent;
+}
+
+/* 🔥 Asegura que el video de la cámara no afecte otras vistas */
+body:not(.scanner-active) {
+  background: var(--ion-background-color, #fff) !important;
 }
 </style>
