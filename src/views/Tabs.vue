@@ -23,6 +23,12 @@
           <ion-icon :icon="informationCircle" />
           <ion-label>Mi Fraccionamiento</ion-label>
         </ion-tab-button>
+
+        <ion-tab-button tab="map" href="/tabs/map">
+          <ion-icon :icon="personCircleOutline" />
+          <ion-label>Map</ion-label>
+        </ion-tab-button>
+
       </ion-tab-bar>
     </ion-tabs>
   </ion-page>
@@ -45,7 +51,9 @@ import {
   location,
   informationCircle,
   qrCodeOutline,
-  receiptOutline
+  receiptOutline, 
+  // person-circle-outline
+  personCircleOutline,
 } from 'ionicons/icons';
 
 export default {
@@ -64,7 +72,8 @@ export default {
       location,
       informationCircle,
       qrCodeOutline,
-      receiptOutline
+      receiptOutline,
+      personCircleOutline,
     };
   },
 };

@@ -2,156 +2,195 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-menu-button></ion-menu-button>
-        </ion-buttons>
-        <ion-title>Map</ion-title>
+        <ion-title>Dashboard de Administrador</ion-title>
       </ion-toolbar>
     </ion-header>
 
-    <ion-content>
-      <div ref="mapCanvas" class="map-canvas"></div>
+    <ion-content class="ion-padding">
+      <!-- Sección de Usuarios -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Usuarios</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item v-for="user in usuarios" :key="user.id">
+              <ion-label>{{ user.nombre }}</ion-label>
+              <ion-button @click="eliminarUsuario(user.id)" color="danger" fill="clear">
+                <ion-icon :icon="trashOutline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Sección de Solicitudes Pendientes -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Solicitudes Pendientes</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item v-for="solicitud in solicitudesPendientes" :key="solicitud.id">
+              <ion-label>{{ solicitud.nombre }}</ion-label>
+              <ion-button @click="aceptarSolicitud(solicitud.id)" color="success" fill="clear">
+                <ion-icon :icon="checkmarkOutline"></ion-icon>
+              </ion-button>
+              <ion-button @click="rechazarSolicitud(solicitud.id)" color="danger" fill="clear">
+                <ion-icon :icon="closeOutline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Sección de Eventos -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Eventos del Fraccionamiento</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-accordion-group>
+            <ion-accordion v-for="evento in eventos" :key="evento.id">
+              <ion-item slot="header">
+                <ion-label>{{ evento.titulo }}</ion-label>
+              </ion-item>
+              <div slot="content">
+                <p><strong>Usuario:</strong> {{ evento.usuario }}</p>
+                <p><strong>Fecha:</strong> {{ evento.fecha }}</p>
+                <p><strong>Tipo:</strong> {{ evento.tipo }}</p>
+              </div>
+            </ion-accordion>
+          </ion-accordion-group>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Sección de Editar Fraccionamiento -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Editar Información del Fraccionamiento</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="stacked">Nombre</ion-label>
+            <ion-input v-model="fraccionamiento.nombre"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Descripción</ion-label>
+            <ion-textarea v-model="fraccionamiento.descripcion"></ion-textarea>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Ubicación</ion-label>
+            <ion-input v-model="fraccionamiento.ubicacion"></ion-input>
+          </ion-item>
+          <ion-button expand="block" @click="guardarCambios">Guardar Cambios</ion-button>
+        </ion-card-content>
+      </ion-card>
     </ion-content>
   </ion-page>
 </template>
 
-<style scoped>
-.map-canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  transition: opacity 150ms ease-in;
-  background-color: transparent;
-  opacity: 0;
-}
-
-.show-map {
-  opacity: 1;
-}
-</style>
-
-<script lang="ts">
+<script setup lang="ts">
 import {
   IonPage,
   IonHeader,
-  IonMenuButton,
   IonToolbar,
-  IonContent,
-  IonButtons,
   IonTitle,
+  IonContent,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonButton,
+  IonIcon,
+  IonAccordionGroup,
+  IonAccordion,
+  IonInput,
+  IonTextarea,
 } from "@ionic/vue";
+import { ref } from "vue";
+import { trashOutline, checkmarkOutline, closeOutline } from "ionicons/icons";
 
-declare const google: any;
+// Datos de ejemplo
+const usuarios = ref([
+  { id: 1, nombre: "Usuario 1" },
+  { id: 2, nombre: "Usuario 2" },
+  { id: 3, nombre: "Usuario 3" },
+]);
 
-export default {
-  name: "Map",
-  components: {
-    IonPage,
-    IonHeader,
-    IonMenuButton,
-    IonToolbar,
-    IonContent,
-    IonButtons,
-    IonTitle,
-  },
-  data() {
-    return {
-      isDark: false,
-      map: null,
-    };
-  },
-  async mounted() {
-    const appEl = document.querySelector("ion-app")!;
-    const darkStyle: never[] = [];
+const solicitudesPendientes = ref([
+  { id: 1, nombre: "Solicitud 1" },
+  { id: 2, nombre: "Solicitud 2" },
+]);
 
-    try {
-      await this.loadGoogleMapsAPI("YOUR_API_KEY_HERE");
-    } catch (error) {
-      // Handle the Google Maps API error here (e.g., log it or display a message).
-      console.error("Error loading Google Maps API:", error);
-    }
+const eventos = ref([
+  { id: 1, titulo: "Evento 1", usuario: "Usuario 1", fecha: "2023-10-01", tipo: "Entrada" },
+  { id: 2, titulo: "Evento 2", usuario: "Usuario 2", fecha: "2023-10-02", tipo: "Salida" },
+]);
 
-    let map: { setOptions: (arg0: { styles: any[] }) => void };
+const fraccionamiento = ref({
+  nombre: "Fraccionamiento Ejemplo",
+  descripcion: "Descripción del fraccionamiento",
+  ubicacion: "Ubicación del fraccionamiento",
+});
 
-    fetch("/data/locations.json")
-      .then((response) => response.json())
-      .then((locations) => {
-        const mapCenter = locations.find(
-          (location: { id: number }) => location.id === 1
-        );
+// Funciones
+const eliminarUsuario = (id: number) => {
+  usuarios.value = usuarios.value.filter((user) => user.id !== id);
+  console.log(`Usuario ${id} eliminado`);
+};
 
-        const mapData = locations.slice(1); // Exclude the first item (Map Center)
+const aceptarSolicitud = (id: number) => {
+  solicitudesPendientes.value = solicitudesPendientes.value.filter((solicitud) => solicitud.id !== id);
+  console.log(`Solicitud ${id} aceptada`);
+};
 
-        map = new google.maps.Map(this.$refs.mapCanvas, {
-          center: {
-            lat: mapCenter.lat,
-            lng: mapCenter.lng,
-          },
-          zoom: 16,
-          styles: this.isDark ? darkStyle : [],
-        });
+const rechazarSolicitud = (id: number) => {
+  solicitudesPendientes.value = solicitudesPendientes.value.filter((solicitud) => solicitud.id !== id);
+  console.log(`Solicitud ${id} rechazada`);
+};
 
-        mapData.forEach((markerData: { name: any; lat: any; lng: any }) => {
-          const infoWindow = new google.maps.InfoWindow({
-            content: `<h5>${markerData.name}</h5>`,
-          });
-
-          const marker = new google.maps.Marker({
-            position: {
-              lat: markerData.lat,
-              lng: markerData.lng,
-            },
-            map,
-            title: markerData.name,
-          });
-
-          marker.addListener("click", () => {
-            infoWindow.open(map, marker);
-          });
-        });
-
-        google.maps.event.addListenerOnce(map, "idle", () => {
-          (this.$refs.mapCanvas as HTMLElement).classList.add("show-map");
-        });
-
-        const observer = new MutationObserver((mutations) => {
-          mutations.forEach((mutation) => {
-            if (mutation.attributeName === "class") {
-              this.isDark = appEl.classList.contains("ion-palette-dark");
-              if (map) {
-                map.setOptions({ styles: this.isDark ? darkStyle : [] });
-              }
-            }
-          });
-        });
-        observer.observe(appEl, {
-          attributes: true,
-        });
-      });
-  },
-  methods: {
-    async loadGoogleMapsAPI(apiKey: string) {
-      if (typeof google !== "undefined" && typeof google.maps !== "undefined") {
-        return; // API already loaded
-      }
-
-      return new Promise<void>((resolve, reject) => {
-        (window as any).initMap = () => {
-          resolve();
-        };
-
-        const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=3.54&callback=initMap`;
-        script.async = true;
-        script.defer = true;
-
-        script.onerror = () => {
-          reject(new Error("Failed to load Google Maps API"));
-        };
-
-        document.body.appendChild(script);
-      });
-    },
-  },
+const guardarCambios = () => {
+  console.log("Cambios guardados:", fraccionamiento.value);
 };
 </script>
+
+<style scoped>
+ion-card {
+  margin-bottom: 20px;
+}
+
+ion-card-header {
+  background-color: var(--ion-color-light);
+}
+
+ion-card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+ion-button {
+  margin: 0 5px;
+}
+
+ion-accordion-group {
+  width: 100%;
+}
+
+ion-accordion ion-item {
+  --padding-start: 16px;
+}
+
+ion-accordion div[slot="content"] {
+  padding: 16px;
+  background-color: var(--ion-color-light);
+}
+</style>
