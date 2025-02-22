@@ -3,7 +3,7 @@
     <ion-header>
       <ion-toolbar color="translucent">
         <ion-buttons slot="end">
-          <ion-button color='primary' @click="navigateToSchedule">Skip</ion-button>
+          <ion-button color='primary' @click="navigateToLogin">Skip</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -17,25 +17,23 @@
           </h2>
           <p>
             The
-            <b>ionic conference app</b> is a practical preview of the ionic framework in action, and a demonstration of proper code use.
+            <b>Fraccionamiento ABC</b> es una app que te permite llevar un control de acceso a tu fraccionamiento.
           </p>
         </SwiperSlide>
 
         <SwiperSlide class="slide">
           <img src="./../../public/assets/img/ica-slidebox-img-1.png" class="slide-image" />
-          <h2 class="slide-title">What is Ionic?</h2>
+          <h2 class="slide-title">Como funciona?</h2>
           <p>
-            <b>Ionic Framework</b> is an open source SDK that enables developers to build high-quality mobile apps with web technologies
-            like HTML, CSS, and JavaScript.
+            <b>Fraccionamiento ABC</b> solo debes leer el código QR que se te proporciona en la caseta de acceso y listo.
           </p>
         </SwiperSlide>
 
         <SwiperSlide class="slide">
           <img src="./../../public/assets/img/ica-slidebox-img-3.png" class="slide-image" />
-          <h2 class="slide-title">What is Ionic Pro?</h2>
+          <h2 class="slide-title">Como vinculo mi app a un fraccionamiento?</h2>
           <p>
-            <b>Ionic Pro</b> is a powerful set of services and features built on top of Ionic Framework that brings a totally new
-            level of app development agility to mobile dev teams.
+            <b>Solicitalo a tu administrador</b> y él te proporcionará un código QR para vincular tu app.
           </p>
         </SwiperSlide>
 
@@ -43,8 +41,8 @@
           <img src="./../../public/assets/img/ica-slidebox-img-4.png" class="slide-image" />
           <h2 class="slide-title">Ready to Play?</h2>
 
-          <ion-button fill="clear" @click="navigateToSchedule">
-            Continue
+          <ion-button fill="clear" @click="navigateToLogin">
+            Continuar
             <ion-icon slot="end" :icon="arrowForward"></ion-icon>
           </ion-button>
         </SwiperSlide>
@@ -132,17 +130,17 @@ const onSwiper = (instance: any) => {
 const onSlideChange = () => {
 };
 
-const navigateToSchedule = async () => {
+const navigateToLogin = async () => {
   menuController.enable(true);
   await storage.set('ion_did_tutorial', true);
-  await router.push({ name: 'schedule' });
+  await router.push({ name: 'login' });
 };
 
 const checkTutorialStatus = async () => {
   await storage.create().then(async () => {
     await storage.get('ion_did_tutorial').then(async (result: any) => {
       if (result === true) {
-        await navigateToSchedule();
+        await navigateToLogin();
       } else {
         ionDidTutorial.value = true;
       }
