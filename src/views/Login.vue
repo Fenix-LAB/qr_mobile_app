@@ -1,14 +1,5 @@
 <template>
   <ion-page>
-    <!-- <ion-header>
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-menu-button></ion-menu-button>
-        </ion-buttons>
-        <ion-title>Login</ion-title>
-      </ion-toolbar>
-    </ion-header> -->
-
     <ion-content class="ion-padding">
       <div class="login-logo">
         <img src="./../../public/assets/img/shield.png" alt="Ionic logo" />
@@ -68,12 +59,11 @@
 </template>
 
 <style scoped>
-/* Centrar el contenido */
 .login-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 500vh; /* Ocupa toda la altura de la pantalla */
+  height: 500vh;
 }
 
 .login-logo {
@@ -110,15 +100,12 @@ import {
   IonToast,
   menuController,
 } from "@ionic/vue";
-
+import { useStore } from 'vuex'; // Importa el store de Vuex
 import router from '@/router';
 
 const username = ref("");
 const password = ref("");
 const submitted = ref(false);
-
-const usernameValid = true;
-const passwordValid = true;
 
 const showToast = ref(false);
 const toastMessage = ref("");
@@ -127,21 +114,26 @@ const canSubmit = computed(
   () => username.value.trim() !== "" && password.value.trim() !== ""
 );
 
-const navigateToSchedule = async () => {
+const store = useStore(); // Obtén el store
+
+const navigateToQr = async () => {
   menuController.enable(true);
-  // await storage.set('ion_did_tutorial', true);
   await router.push({ name: 'schedule' });
 };
 
 const onLogin = () => {
   submitted.value = true;
-  // if (usernameValid && passwordValid) {
-  // }
+
   if (username.value === "admin" && password.value === "admin") {
-    // Redirigir a /schedule si las credenciales son correctas
-    navigateToSchedule();
+    // Credenciales de administrador
+    store.dispatch('user/logIn', { userName: username.value, role: 'admin' }); // Asignar rol de admin
+    navigateToQr();
+  } else if (username.value === "user" && password.value === "user") {
+    // Credenciales de usuario normal
+    store.dispatch('user/logIn', { userName: username.value, role: 'user' }); // Asignar rol de user
+    navigateToQr();
   } else {
-    // Mostrar un mensaje de error si las credenciales son incorrectas
+    // Credenciales incorrectas
     toastMessage.value = "Invalid username or password.";
     showToast.value = true;
   }
@@ -149,7 +141,6 @@ const onLogin = () => {
 
 const onSignup = () => {
   toastMessage.value = "Successfully logged in!";
-
   showToast.value = true;
 
   username.value = "";

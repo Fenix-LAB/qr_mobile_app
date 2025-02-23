@@ -26,3 +26,5 @@ npm i -g cordova-res
 
 ionic cap sync android
 ionic cap run android
+
+.\gradlew assembleDebug

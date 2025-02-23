@@ -1,3 +1,4 @@
+// store/modules/user.ts
 import { Module } from 'vuex';
 
 export interface User {
@@ -5,24 +6,28 @@ export interface User {
   userName: string | null;
   isAuthenticated: boolean;
   hasSeenTutorial: boolean;
+  role: string; // Nuevo campo para el rol
 }
 
 const defaultState: User = {
   pictureLocation: null,
   userName: null,
   isAuthenticated: false,
-  hasSeenTutorial: false
+  hasSeenTutorial: false,
+  role: 'user', // Valor por defecto
 };
 
 const userStore: Module<User, {}> = {
+  namespaced: true, // Asegúrate de que esto esté presente
   state: defaultState,
   mutations: {
     sawTutorial(state) {
       state.hasSeenTutorial = true;
     },
-    logIn(state, userName: string) {
-      state.userName = userName;
+    logIn(state, payload: { userName: string; role?: string }) {
+      state.userName = payload.userName;
       state.isAuthenticated = true;
+      state.role = payload.role || 'user'; // Asignar el rol si está presente
     },
     logOut(state) {
       Object.assign(state, defaultState);
@@ -33,14 +38,17 @@ const userStore: Module<User, {}> = {
     setHasSeenTutorial(state, value: boolean) {
       state.hasSeenTutorial = value;
     },
+    setRole(state, role: string) {
+      state.role = role; // Mutación para actualizar el rol
+    },
   },
   actions: {
     sawTutorial({ commit }) {
       commit('sawTutorial');
     },
-    logIn({ commit }, userName: string) {
+    logIn({ commit }, payload: { userName: string; role?: string }) {
       setTimeout(() => {
-        commit('logIn', userName);
+        commit('logIn', payload);
       }, 50);
     },
     logOut({ commit }) {
@@ -56,7 +64,10 @@ const userStore: Module<User, {}> = {
     setHasSeenTutorial({ commit }, value: boolean) {
       commit('setHasSeenTutorial', value);
     },
-  }
+    updateRole({ commit }, role: string) {
+      commit('setRole', role); // Acción para actualizar el rol
+    },
+  },
 };
 
-export default userStore;
+export default userStore; // Exporta el módulo correctamente

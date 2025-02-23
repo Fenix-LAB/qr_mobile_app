@@ -24,7 +24,7 @@
           <ion-label>Mi Fraccionamiento</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="map" href="/tabs/map">
+        <ion-tab-button tab="map" href="/tabs/map" v-if="isAdmin">
           <ion-icon :icon="personCircleOutline" />
           <ion-label>Map</ion-label>
         </ion-tab-button>
@@ -55,6 +55,8 @@ import {
   // person-circle-outline
   personCircleOutline,
 } from 'ionicons/icons';
+import { computed } from 'vue';
+import { useStore } from 'vuex'; // Importa el store de Vuex
 
 export default {
   components: {
@@ -65,16 +67,20 @@ export default {
     IonTabButton,
     IonLabel,
   },
-  data() {
+  setup() {
+    const store = useStore();
+
+    // Computed property para verificar si el usuario es administrador
+    const isAdmin = computed(() => store.state.user.role === 'admin');
+    console.log('isAdmin', isAdmin.value);
+
     return {
-      calendar,
-      people,
-      location,
-      informationCircle,
       qrCodeOutline,
       receiptOutline,
+      informationCircle,
       personCircleOutline,
+      isAdmin, // Expone la propiedad computada al template
     };
-  },
-};
+  }
+}
 </script>
