@@ -32,7 +32,7 @@
       <ion-text v-if="scannedData">Código escaneado: {{ scannedData }}</ion-text>
 
       <!-- FAB de redes sociales -->
-      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <!-- <ion-fab slot="fixed" vertical="bottom" horizontal="end">
         <ion-fab-button>
           <ion-icon :icon="shareSocial"></ion-icon>
         </ion-fab-button>
@@ -50,7 +50,7 @@
             <ion-icon :icon="logoFacebook"></ion-icon>
           </ion-fab-button>
         </ion-fab-list>
-      </ion-fab>
+      </ion-fab> -->
     </ion-content>
   </ion-page>
 </template>
@@ -176,6 +176,7 @@ const openSocial = (network: string) => {
   justify-content: center;
   align-items: center;
   background: transparent !important; /* Fondo transparente */
+  margin-top: 120px; /* Mover el cuadro más abajo */
 }
 
 .camera-overlay {
@@ -225,7 +226,7 @@ const openSocial = (network: string) => {
 .flashlight-button-container {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 40px; /* Mover el botón más abajo */
 }
 
 .flashlight-button {
@@ -238,6 +239,10 @@ const openSocial = (network: string) => {
   width: 50px;
   height: 50px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
+}
+
+.flashlight-button ion-icon {
+  color: black; /* Cambiar el color del icono a negro */
 }
 
 /* Estilos específicos para esta vista */
