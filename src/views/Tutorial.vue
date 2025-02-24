@@ -12,8 +12,8 @@
         <SwiperSlide class="slide">
           <img src="./../../public/assets/img/ica-slidebox-img-1.png" class="slide-image" />
           <h2 class="slide-title">
-            Welcome to
-            <b>ICA</b>
+            Bienvenido a
+            <b>Fraccionamiento ABC</b>
           </h2>
           <p>
             The
@@ -39,7 +39,7 @@
 
         <SwiperSlide class="slide">
           <img src="./../../public/assets/img/ica-slidebox-img-4.png" class="slide-image" />
-          <h2 class="slide-title">Ready to Play?</h2>
+          <h2 class="slide-title">Listo para iniciar?</h2>
 
           <ion-button fill="clear" @click="navigateToLogin">
             Continuar

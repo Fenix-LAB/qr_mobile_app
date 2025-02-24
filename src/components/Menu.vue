@@ -76,26 +76,26 @@
             </ion-label>
           </ion-item>
         </ion-menu-toggle>
-        <ion-item>
+        <!-- <ion-item>
           <ion-icon slot="start" :icon="ionIcons.moonOutline"></ion-icon>
             <ion-toggle v-model="localDark" label-placement="start">
               Dark Mode
             </ion-toggle>
-          </ion-item>
+          </ion-item> -->
       </ion-list>
 
 
-      <!-- <ion-list lines="none">
+      <ion-list lines="none">
         <ion-list-header>
           Tutorial
         </ion-list-header>
         <ion-menu-toggle :auto-hide="false">
           <ion-item button @click="openTutorial()">
             <ion-icon slot="start" :icon="ionIcons.hammer"></ion-icon>
-            <ion-label>Show Tutorial</ion-label>
+            <ion-label>Ver Tutorial</ion-label>
           </ion-item>
         </ion-menu-toggle>
-      </ion-list> -->
+      </ion-list>
     </ion-content>
   </ion-menu>
 </template>
