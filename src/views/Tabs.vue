@@ -25,8 +25,13 @@
         </ion-tab-button>
 
         <ion-tab-button tab="map" href="/tabs/map" v-if="isAdmin">
-          <ion-icon :icon="personCircleOutline" />
-          <ion-label>Map</ion-label>
+          <ion-icon :icon="optionsOutline" />
+          <ion-label>Admin</ion-label>
+        </ion-tab-button>
+
+        <ion-tab-button tab="superadmin" href="/tabs/superadmin" v-if="isAdmin">
+          <ion-icon :icon="idCardOutline" />
+          <ion-label>Super Admin</ion-label>
         </ion-tab-button>
 
       </ion-tab-bar>
@@ -54,6 +59,11 @@ import {
   receiptOutline, 
   // person-circle-outline
   personCircleOutline,
+  // id-card-outline
+  idCardOutline,
+  // options-outline
+  optionsOutline,
+
 } from 'ionicons/icons';
 import { computed } from 'vue';
 import { useStore } from 'vuex'; // Importa el store de Vuex
@@ -79,6 +89,8 @@ export default {
       receiptOutline,
       informationCircle,
       personCircleOutline,
+      idCardOutline,
+      optionsOutline,
       isAdmin, // Expone la propiedad computada al template
     };
   }
