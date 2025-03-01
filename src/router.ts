@@ -49,7 +49,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'schedule',
         name: 'schedule',
-        component: () => import('@/views/SessionList.vue')
+        component: () => import('@/views/Scanner.vue')
       },
       {
         name: 'session-detail',
@@ -60,7 +60,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'speakers',
         name: 'speakers',
-        component: () => import('@/views/SpeakerList.vue')
+        component: () => import('@/views/History.vue')
       },
       {
         path: 'speakers/speaker/:speakerId',
@@ -75,7 +75,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'map',
         name: 'map',
-        component: () => import('@/views/Map.vue')
+        component: () => import('@/views/Admin.vue')
       },
       {
         path: 'about',
