@@ -1,6 +1,6 @@
 {
-  "appId": "io.ionic.starter",
-  "appName": "heelo",
+  "appId": "app.fraccionamiento.puebla",
+  "appName": "QR Pass",
   "bundledWebRuntime": false,
   "webDir": "dist"
 }

@@ -85,7 +85,7 @@
       </ion-list>
 
 
-      <ion-list lines="none">
+      <!-- <ion-list lines="none">
         <ion-list-header>
           Tutorial
         </ion-list-header>
@@ -95,7 +95,7 @@
             <ion-label>Ver Tutorial</ion-label>
           </ion-item>
         </ion-menu-toggle>
-      </ion-list>
+      </ion-list> -->
     </ion-content>
   </ion-menu>
 </template>
