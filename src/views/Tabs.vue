@@ -24,7 +24,7 @@
           <ion-label>Mi Fraccionamiento</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="map" href="/tabs/map" v-if="isAdmin">
+        <ion-tab-button tab="map" href="/tabs/map" v-if="isAdmin || isSuperAdmin">
           <ion-icon :icon="optionsOutline" />
           <ion-label>Admin</ion-label>
         </ion-tab-button>
@@ -47,25 +47,17 @@ import {
   IonTabBar,
   IonTabButton,
   IonLabel,
-  IonIcon
+  IonIcon,
 } from '@ionic/vue';
-
 import {
-  calendar,
-  people,
-  location,
-  informationCircle,
   qrCodeOutline,
-  receiptOutline, 
-  // person-circle-outline
+  receiptOutline,
   personCircleOutline,
-  // id-card-outline
-  idCardOutline,
-  // options-outline
   optionsOutline,
-
+  informationCircle,
+  idCardOutline,
 } from 'ionicons/icons';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex'; // Importa el store de Vuex
 
 export default {
@@ -76,25 +68,33 @@ export default {
     IonTabBar,
     IonTabButton,
     IonLabel,
+    IonIcon,
   },
   setup() {
     const store = useStore();
 
-    // Computed property para verificar si el usuario es administrador
+    // Recuperar el rol del localStorage al cargar la página
+    onMounted(() => {
+      const userRole = localStorage.getItem('userRole');
+      if (userRole) {
+        store.commit('user/setRole', userRole); // Actualizar el estado de Vuex
+      }
+    });
+
+    // Computed properties para verificar el rol del usuario
     const isAdmin = computed(() => store.state.user.role === 'admin');
     const isSuperAdmin = computed(() => store.state.user.role === 'superadmin');
-    console.log('isAdmin', isAdmin.value);
-    console.log('isSuperAdmin', isSuperAdmin.value);
 
     return {
       qrCodeOutline,
       receiptOutline,
-      informationCircle,
       personCircleOutline,
-      idCardOutline,
       optionsOutline,
-      isAdmin, // Expone la propiedad computada al template
+      isAdmin,
+      isSuperAdmin,
+      informationCircle,
+      idCardOutline,
     };
-  }
-}
+  },
+};
 </script>

@@ -126,15 +126,21 @@ const onLogin = () => {
 
   if (username.value === "admin" && password.value === "admin") {
     // Credenciales de administrador
-    store.dispatch('user/logIn', { userName: username.value, role: 'admin' }); // Asignar rol de admin
+    const userData = { userName: username.value, role: "admin" };
+    store.dispatch('user/logIn', userData); // Guardar en Vuex
+    localStorage.setItem('userRole', userData.role); // Guardar en localStorage
     navigateToQr();
   } else if (username.value === "user" && password.value === "user") {
     // Credenciales de usuario normal
-    store.dispatch('user/logIn', { userName: username.value, role: 'user' }); // Asignar rol de user
+    const userData = { userName: username.value, role: "user" };
+    store.dispatch('user/logIn', userData); // Guardar en Vuex
+    localStorage.setItem('userRole', userData.role); // Guardar en localStorage
     navigateToQr();
   } else if (username.value === "sadmin" && password.value === "sadmin") {
     // Credenciales de superadministrador
-    store.dispatch('user/logIn', { userName: username.value, role: 'superadmin' }); // Asignar rol de superadmin
+    const userData = { userName: username.value, role: "superadmin" };
+    store.dispatch('user/logIn', userData); // Guardar en Vuex
+    localStorage.setItem('userRole', userData.role); // Guardar en localStorage
     navigateToQr();
   } else {
     // Credenciales incorrectas
