@@ -29,7 +29,7 @@
           <ion-label>Admin</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="superadmin" href="/tabs/superadmin" v-if="isAdmin">
+        <ion-tab-button tab="superadmin" href="/tabs/superadmin" v-if="isSuperAdmin">
           <ion-icon :icon="idCardOutline" />
           <ion-label>Super Admin</ion-label>
         </ion-tab-button>
@@ -82,7 +82,9 @@ export default {
 
     // Computed property para verificar si el usuario es administrador
     const isAdmin = computed(() => store.state.user.role === 'admin');
+    const isSuperAdmin = computed(() => store.state.user.role === 'superadmin');
     console.log('isAdmin', isAdmin.value);
+    console.log('isSuperAdmin', isSuperAdmin.value);
 
     return {
       qrCodeOutline,

@@ -132,6 +132,10 @@ const onLogin = () => {
     // Credenciales de usuario normal
     store.dispatch('user/logIn', { userName: username.value, role: 'user' }); // Asignar rol de user
     navigateToQr();
+  } else if (username.value === "sadmin" && password.value === "sadmin") {
+    // Credenciales de superadministrador
+    store.dispatch('user/logIn', { userName: username.value, role: 'superadmin' }); // Asignar rol de superadmin
+    navigateToQr();
   } else {
     // Credenciales incorrectas
     toastMessage.value = "Invalid username or password.";
