@@ -21,7 +21,7 @@
 
         <ion-tab-button tab="about" href="/tabs/about">
           <ion-icon :icon="informationCircle" />
-          <ion-label>Mi Fraccionamiento</ion-label>
+          <ion-label>Info</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="map" href="/tabs/map" v-if="isAdmin || isSuperAdmin">
