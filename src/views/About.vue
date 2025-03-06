@@ -1,6 +1,7 @@
 <template>
   <ion-page>
     <ion-content>
+      <!-- Cabecera -->
       <ion-header class="ion-no-border">
         <ion-toolbar>
           <ion-buttons slot="start">
@@ -10,52 +11,49 @@
         </ion-toolbar>
       </ion-header>
 
+      <!-- Imagen de cabecera -->
       <div class="about-header">
         <div class="about-image seattle" :style="{ opacity: '1' }"></div>
       </div>
 
+      <!-- Contenedor de información -->
       <div class="about-info">
-        <h3 class="ion-padding-top ion-padding-start">
-          {{ fraccionamientoActual.name }}
-        </h3>
+        <!-- Título "Tus fraccionamientos" -->
+        <h3 class="ion-padding-top ion-padding-start">Tus fraccionamientos</h3>
 
-        <p class="ion-padding-start ion-padding-end">
-          {{ fraccionamientoActual.description }}
-        </p>
-
-        <h3 class="ion-padding-top ion-padding-start">Detalles</h3>
-
+        <!-- Lista de fraccionamientos -->
         <ion-list lines="none">
-          <ion-item>
-            <ion-label>Ubicación</ion-label>
-            <ion-text slot="end">{{ fraccionamientoActual.location }}</ion-text>
+          <ion-item v-for="(fraccionamiento, index) in fraccionamientos" :key="index">
+            <ion-label>
+              <h2>{{ fraccionamiento.name }}</h2>
+              <p>{{ fraccionamiento.location }}</p>
+              <p>{{ fraccionamiento.description }}</p>
+            </ion-label>
           </ion-item>
         </ion-list>
 
-        <!-- Botón para vincular fraccionamiento -->
+        <!-- Botón para vincular nuevo fraccionamiento -->
         <div class="ion-text-center ion-padding">
-          <ion-button id="popover-button-selec" expand="block">
-            Vincular
+          <ion-button expand="block" @click="cargarFraccionamientosDisponibles">
+            Vincular Fraccionamiento
           </ion-button>
         </div>
 
         <!-- Popover para vincular fraccionamiento -->
-        <ion-popover trigger="popover-button-selec" :dismiss-on-select="true">
-          <ion-content class="ion-padding">
+        <ion-popover :is-open="fraccionamientosDisponibles.length > 0">
+          <ion-content>
             <ion-list>
               <ion-item>
-                <ion-label>Seleccione Fraccionamiento</ion-label>
-                <ion-select v-model="selectedFraccionamiento" placeholder="Seleccione uno">
-                  <ion-select-option v-for="fraccionamiento in fraccionamientos" :key="fraccionamiento.id"
+                <ion-label>Selecciona un fraccionamiento</ion-label>
+                <ion-select v-model="selectedFraccionamiento">
+                  <ion-select-option v-for="(fraccionamiento, index) in fraccionamientosDisponibles" :key="index"
                     :value="fraccionamiento.name">
                     {{ fraccionamiento.name }}
                   </ion-select-option>
                 </ion-select>
               </ion-item>
             </ion-list>
-            <ion-button expand="block" @click="registrar">
-              Registrar
-            </ion-button>
+            <ion-button expand="full" @click="registrar">Registrar</ion-button>
           </ion-content>
         </ion-popover>
       </div>
@@ -72,58 +70,50 @@ import {
   IonMenuButton,
   IonPopover,
   IonToolbar,
-  IonIcon,
-  IonButtons,
   IonList,
-  IonLabel,
   IonItem,
-  IonText,
+  IonLabel,
   IonSelect,
   IonSelectOption,
 } from "@ionic/vue";
 
 import { ref, onMounted } from "vue";
-import { obtenerFraccionamientoActual, obtenerFraccionamientosUsurio, actulizarFraccionamientoActualUsuario } from "@/services/fraccionamientosService";
+import { obtenerFraccionamientosUsuario, actulizarFraccionamientoActualUsuario, obtenerFraccionamientosDisponibles } from "@/services/fraccionamientosService";
 
-// Estado para el fraccionamiento actual
-const fraccionamientoActual = ref({
-  id: 0,
-  name: "Cargando...",
-  location: "",
-  description: "",
-});
+// Estado para la lista de fraccionamientos del usuario
+const fraccionamientos = ref<{ id: number; name: string; location: string; description: string }[]>([]);
 
-// Estado para la lista de fraccionamientos disponibles
-const fraccionamientos = ref<{ id: number; name: string }[]>([]);
+// Estado para la lista de fraccionamientos disponibles para vincular
+const fraccionamientosDisponibles = ref<{ id: number; name: string }[]>([]);
 
 // Estado para el fraccionamiento seleccionado en el popover
 const selectedFraccionamiento = ref<string | null>(null);
 
-// Cargar el fraccionamiento actual del usuario
-const cargarFraccionamientoActual = async () => {
+// Cargar los fraccionamientos del usuario
+const cargarFraccionamientos = async () => {
   try {
-    const response = await obtenerFraccionamientoActual(1); // Cambia el ID según el usuario
-    if (response) {
-      fraccionamientoActual.value = {
-        id: response.frac.id,
-        name: response.frac.name,
-        location: response.frac.location,
-        description: response.frac.description,
-      };
+    const response = await obtenerFraccionamientosUsuario(1); // Cambia el ID según el usuario
+    console.log(response);
+    if (response && response.length > 0) {
+      fraccionamientos.value = response.map((assoc: any) => ({
+        name: assoc.name,
+        location: assoc.location,
+        description: assoc.description,
+      }));
     }
   } catch (error) {
-    console.error("Error cargando fraccionamiento actual", error);
+    console.error("Error cargando fraccionamientos del usuario", error);
   }
 };
 
-// Cargar los fraccionamientos disponibles para el usuario
+// Cargar los fraccionamientos disponibles para vincular
 const cargarFraccionamientosDisponibles = async () => {
   try {
-    const response = await obtenerFraccionamientosUsurio(1); // Cambia el ID según el usuario
+    const response = await obtenerFraccionamientosDisponibles(1); // Cambia el ID según el usuario
     if (response && response.length > 0) {
-      fraccionamientos.value = response.map((assoc: any) => ({
-        id: assoc.frac.id,
-        name: assoc.frac.name,
+      fraccionamientosDisponibles.value = response.map((frac: any) => ({
+        id: frac.id,
+        name: frac.name,
       }));
     }
   } catch (error) {
@@ -135,13 +125,13 @@ const cargarFraccionamientosDisponibles = async () => {
 const registrar = async () => {
   if (selectedFraccionamiento.value) {
     try {
-      const fraccionamiento = fraccionamientos.value.find(
+      const fraccionamiento = fraccionamientosDisponibles.value.find(
         (frac) => frac.name === selectedFraccionamiento.value
       );
       if (fraccionamiento) {
         await actulizarFraccionamientoActualUsuario(1, fraccionamiento.id); // Cambia el ID según el usuario
         alert(`Te has registrado en: ${selectedFraccionamiento.value}`);
-        cargarFraccionamientoActual(); // Recargar el fraccionamiento actual
+        cargarFraccionamientos(); // Recargar la lista de fraccionamientos
       }
     } catch (error) {
       console.error("Error registrando fraccionamiento", error);
@@ -153,12 +143,13 @@ const registrar = async () => {
 
 // Cargar datos al montar el componente
 onMounted(() => {
-  cargarFraccionamientoActual();
+  cargarFraccionamientos();
   cargarFraccionamientosDisponibles();
 });
 </script>
 
 <style scoped>
+/* Estilos para la cabecera */
 ion-toolbar {
   --background: transparent;
   --color: white;
@@ -174,6 +165,7 @@ ion-toolbar ion-menu-button {
   --color: white;
 }
 
+/* Estilos para la imagen de cabecera */
 .about-header {
   position: relative;
   width: 100%;
@@ -195,6 +187,7 @@ ion-toolbar ion-menu-button {
   opacity: 1;
 }
 
+/* Estilos para el contenedor de información */
 .about-info {
   position: absolute;
   margin-top: -10px;
@@ -212,21 +205,22 @@ ion-toolbar ion-menu-button {
   line-height: 130%;
 }
 
-.about-info ion-list {
+/* Estilos para la lista de fraccionamientos */
+ion-list {
   padding-top: 0;
 }
 
-.about-info ion-item {
+ion-item {
   --padding-start: 16px;
   --padding-end: 16px;
 }
 
-.about-info ion-label {
+ion-label h2 {
   font-weight: bold;
 }
 
-.about-info ion-text {
-  color: var(--ion-color-dark);
+ion-label p {
+  color: var(--ion-color-medium);
 }
 
 /* Estilos para el popover */

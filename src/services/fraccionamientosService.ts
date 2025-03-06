@@ -63,15 +63,16 @@ export const obtenerFraccionamientosUsuario = async (userId: number) => {
   return response?.data?.qr_shield_user_frac_association?.map((item: any) => item.frac) || [];
 };
 
-export const obtenerFraccionamientoActual = async (userId: number) => {
+export const obtenerFraccionamientosDisponibles = async (userId: number) => {
   const query = `
   query MyQuery {
-  qr_shield_user(distinct_on: current_frac_id, where: {id: {_eq: ${userId}}}) {
-    frac {
-      id
-      name
-      description
-      location
+  qr_shield_user(where: {id: {_neq: 1}}) {
+    user_frac_associations {
+      frac {
+        name
+        description
+        location
+      }
     }
   }
 }
@@ -79,26 +80,46 @@ export const obtenerFraccionamientoActual = async (userId: number) => {
 
   const response = await graphqlRequest(query);
 
-  return response?.data?.qr_shield_user[0] || [];
+  return response?.data?.qr_shield_user?.[0]?.user_frac_associations?.map((item: any) => item.frac) || [];
 };
 
-export const obtenerFraccionamientosUsurio = async (userId: number) => {
-  const query = `
-    query MyQuery {
-    qr_shield_user_frac_association(where: {user_id: {_eq: ${userId}}}) {
-      frac {
-        name
-        description
-        location
-        id
-      }
-    }
-  }
-  `;
-  const response = await graphqlRequest(query);
 
-  return response?.data?.qr_shield_user_frac_association || [];
-};
+// export const obtenerFraccionamientoActual = async (userId: number) => {
+//   const query = `
+//   query MyQuery {
+//   qr_shield_user(distinct_on: current_frac_id, where: {id: {_eq: ${userId}}}) {
+//     frac {
+//       id
+//       name
+//       description
+//       location
+//     }
+//   }
+// }
+//   `;
+
+//   const response = await graphqlRequest(query);
+
+//   return response?.data?.qr_shield_user[0] || [];
+// };
+
+// export const obtenerFraccionamientosUsurio = async (userId: number) => {
+//   const query = `
+//     query MyQuery {
+//     qr_shield_user_frac_association(where: {user_id: {_eq: ${userId}}}) {
+//       frac {
+//         name
+//         description
+//         location
+//         id
+//       }
+//     }
+//   }
+//   `;
+//   const response = await graphqlRequest(query);
+
+//   return response?.data?.qr_shield_user_frac_association || [];
+// };
 
 export const actulizarFraccionamientoActualUsuario = async (userId: number, fracId: number) => {
   const query = `
