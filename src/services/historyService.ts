@@ -10,14 +10,15 @@ export const obtenerHistorialesUsuario = async (userId: number) => {
             location
             }
             datetime
+            type
         }
         }
     `;
     
   const response = await graphqlRequest(query);
 
-  console.log("Respuesta GraphQL:", response); // 👈 Verifica qué devuelve la API
+//   console.log("Respuesta GraphQL:", response); // 👈 Verifica qué devuelve la API
 
-  return response?.data?.qr_shield_event?.map((item: any) => item.frac) || [];
+  return response?.data?.qr_shield_event || [];
 };
         

@@ -11,10 +11,10 @@
 
     <ion-content :fullscreen="true">
       <ion-list>
-        <ion-item v-for="(event, index) in eventsd" :key="index">
+        <ion-item v-for="(event, index) in events" :key="index">
           <ion-label>
             <h2>{{ event.frac_name }}</h2>
-            <p>{{ event.type === 'entry' ? 'Entrada' : 'Salida' }} - {{ event.date }} a las {{ event.time }}</p>
+            <p>{{ event.type === 'entry' ? 'Entrada' : 'Salida' }} - {{ event.datetime.split('T')[0] }} a las {{ event.datetime.split('T')[1].split('.')[0] }}</p>
           </ion-label>
         </ion-item>
       </ion-list>
@@ -40,14 +40,24 @@ import { ref, onMounted } from "vue";
 
 import { obtenerHistorialesUsuario } from "@/services/historyService";
 
-const events = ref([]);
+const events = ref<{ frac_name: string; type: string; datetime: string }[]>([]);
 
 const fetchEvents = async () => {
   try {
     const response = await obtenerHistorialesUsuario(1);
-    console.log(response);
-    // 
-    events.value = response.data;
+    // console.log("response", response);
+    events.value = response.map((assoc: any) => ({
+      frac_name: assoc.frac.name,
+      type: assoc.type,
+      datetime: assoc.datetime,
+    }));
+
+    events.value.sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+    if (events.value.length === 0) {
+      console.log("No events found.");
+    } else {
+      console.log("Sorted events:", events.value);
+    }
   } catch (error) {
     console.error("Error fetching events:", error);
   }
