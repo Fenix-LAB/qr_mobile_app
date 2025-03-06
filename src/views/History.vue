@@ -11,7 +11,7 @@
 
     <ion-content :fullscreen="true">
       <ion-list>
-        <ion-item v-for="(event, index) in events" :key="index">
+        <ion-item v-for="(event, index) in eventsd" :key="index">
           <ion-label>
             <h2>{{ event.frac_name }}</h2>
             <p>{{ event.type === 'entry' ? 'Entrada' : 'Salida' }} - {{ event.date }} a las {{ event.time }}</p>
@@ -36,8 +36,29 @@ import {
   IonTitle,
 } from "@ionic/vue";
 
+import { ref, onMounted } from "vue";
+
+import { obtenerHistorialesUsuario } from "@/services/historyService";
+
+const events = ref([]);
+
+const fetchEvents = async () => {
+  try {
+    const response = await obtenerHistorialesUsuario(1);
+    console.log(response);
+    // 
+    events.value = response.data;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+  }
+};
+
+onMounted(() => {
+  fetchEvents();
+});
+
 // Event list dummy data
-const events = [
+const eventsd = [
   {
     type: "exit",
     date: "2024-02-01",
