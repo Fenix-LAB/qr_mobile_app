@@ -31,26 +31,6 @@
       <!-- Texto del código escaneado -->
       <ion-text v-if="scannedData">Código escaneado: {{ scannedData }}</ion-text>
 
-      <!-- FAB de redes sociales -->
-      <!-- <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button>
-          <ion-icon :icon="shareSocial"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-list side="top">
-          <ion-fab-button color="vimeo" @click="openSocial('Vimeo')">
-            <ion-icon :icon="logoVenmo"></ion-icon>
-          </ion-fab-button>
-          <ion-fab-button color="google" @click="openSocial('Google+')">
-            <ion-icon :icon="logoGoogle"></ion-icon>
-          </ion-fab-button>
-          <ion-fab-button color="twitter" @click="openSocial('Twitter')">
-            <ion-icon :icon="logoTwitter"></ion-icon>
-          </ion-fab-button>
-          <ion-fab-button color="facebook" @click="openSocial('Facebook')">
-            <ion-icon :icon="logoFacebook"></ion-icon>
-          </ion-fab-button>
-        </ion-fab-list>
-      </ion-fab> -->
     </ion-content>
   </ion-page>
 </template>
@@ -66,18 +46,10 @@ import {
   IonMenuButton,
   IonIcon,
   IonContent,
-  IonFab,
-  IonFabButton,
-  IonFabList,
   IonText,
   IonButton,
 } from "@ionic/vue";
 import {
-  shareSocial,
-  logoVenmo,
-  logoGoogle,
-  logoTwitter,
-  logoFacebook,
   flashlightOutline,
 } from "ionicons/icons";
 import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
