@@ -10,27 +10,45 @@
     </ion-header>
 
     <ion-content :fullscreen="true" class="scanner-content">
-      <!-- Contenedor para el video de la cámara -->
-      <div id="camera-container" class="camera-container">
-        <!-- Overlay con esquinas -->
-        <div class="camera-overlay">
-          <div class="corner top-left"></div>
-          <div class="corner top-right"></div>
-          <div class="corner bottom-left"></div>
-          <div class="corner bottom-right"></div>
+      <!-- Pantalla de escaneo -->
+      <div v-if="!scanResult">
+        <!-- Contenedor para el video de la cámara -->
+        <div id="camera-container" class="camera-container">
+          <!-- Overlay con esquinas -->
+          <div class="camera-overlay">
+            <div class="corner top-left"></div>
+            <div class="corner top-right"></div>
+            <div class="corner bottom-left"></div>
+            <div class="corner bottom-right"></div>
+          </div>
         </div>
+
+        <!-- Botón de la linterna -->
+        <div class="flashlight-button-container">
+          <ion-button @click="toggleFlashlight" class="flashlight-button">
+            <ion-icon :icon="flashlightIcon"></ion-icon>
+          </ion-button>
+        </div>
+
+        <!-- Texto del código escaneado -->
+        <ion-text v-if="scannedData">Código escaneado: {{ scannedData }}</ion-text>
       </div>
 
-      <!-- Botón de la linterna -->
-      <div class="flashlight-button-container">
-        <ion-button @click="toggleFlashlight" class="flashlight-button">
-          <ion-icon :icon="flashlightIcon"></ion-icon>
-        </ion-button>
+      <!-- Pantalla de éxito -->
+      <div v-if="scanResult === 'success'" class="result-screen success">
+        <ion-icon :icon="checkmarkCircle" class="result-icon"></ion-icon>
+        <h2>¡Éxito!</h2>
+        <p>El código QR se ha procesado correctamente.</p>
+        <ion-button @click="resetScanner">OK</ion-button>
       </div>
 
-      <!-- Texto del código escaneado -->
-      <ion-text v-if="scannedData">Código escaneado: {{ scannedData }}</ion-text>
-
+      <!-- Pantalla de error -->
+      <div v-if="scanResult === 'error'" class="result-screen error">
+        <ion-icon :icon="closeCircle" class="result-icon"></ion-icon>
+        <h2>Error</h2>
+        <p>Hubo un problema al procesar el código QR.</p>
+        <ion-button @click="resetScanner">OK</ion-button>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -49,14 +67,13 @@ import {
   IonText,
   IonButton,
 } from "@ionic/vue";
-import {
-  flashlightOutline,
-} from "ionicons/icons";
+import { flashlightOutline, checkmarkCircle, closeCircle } from "ionicons/icons";
 import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
 
 const scannedData = ref<string | null>(null);
 const flashlightIcon = ref(flashlightOutline); // Icono de la linterna
 const isFlashlightOn = ref(false); // Estado de la linterna
+const scanResult = ref<"success" | "error" | null>(null); // Estado del resultado del escaneo
 
 // Función para verificar permisos
 async function checkPermissions() {
@@ -90,13 +107,39 @@ async function startScanning() {
     if (result.hasContent) {
       scannedData.value = result.content;
       console.log("Código escaneado:", result.content);
+
+      // Simular el consumo del servicio
+      const serviceResponse = await consumeService(result.content);
+      if (true) { // Cambiar a serviceResponse.success si se implementa el servicio real
+        scanResult.value = "success"; // Mostrar pantalla de éxito
+      } else {
+        scanResult.value = "error"; // Mostrar pantalla de error
+      }
     } else {
       console.log("No se detectó ningún código.");
     }
   } catch (error) {
     console.error("Error al escanear:", error);
+    scanResult.value = "error"; // Mostrar pantalla de error en caso de excepción
   }
 }
+
+// Función para consumir el servicio (simulación)
+async function consumeService(qrData: string) {
+  // Simula una llamada a un servicio
+  return new Promise<{ success: boolean }>((resolve) => {
+    setTimeout(() => {
+      resolve({ success: qrData.includes("valid") }); // Simula una respuesta exitosa si el QR contiene "valid"
+    }, 1000);
+  });
+}
+
+// Función para resetear el escáner
+const resetScanner = () => {
+  scanResult.value = null; // Volver a la pantalla de escaneo
+  scannedData.value = null; // Limpiar el código escaneado
+  startScanning(); // Reiniciar el escáner
+};
 
 // Función para detener el escáner al salir de la página
 async function stopScanning() {
@@ -130,11 +173,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   stopScanning();
 });
-
-// Manejo de eventos sociales
-const openSocial = (network: string) => {
-  console.log(`Posting to ${network}`);
-};
 </script>
 
 <style scoped>
@@ -217,6 +255,31 @@ const openSocial = (network: string) => {
   color: black; /* Cambiar el color del icono a negro */
 }
 
+/* Estilos para las pantallas de resultado */
+.result-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+}
+
+.result-screen.success {
+  background-color: #4caf50; /* Fondo verde */
+  color: white;
+}
+
+.result-screen.error {
+  background-color: #f44336; /* Fondo rojo */
+  color: white;
+}
+
+.result-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
 /* Estilos específicos para esta vista */
 .scanner-content {
   --background: transparent !important; /* Fondo transparente */
@@ -226,29 +289,5 @@ const openSocial = (network: string) => {
 /* 🔥 Asegura que el video de la cámara no afecte otras vistas */
 body:not(.scanner-active) {
   background: transparent !important; /* Fondo transparente */
-}
-
-/* Estilos para el modo oscuro */
-.ion-palette-dark .camera-container,
-.ion-palette-dark .camera-overlay,
-.ion-palette-dark .corner {
-  background: transparent !important; /* Fondo transparente en modo oscuro */
-}
-
-.ion-palette-dark .camera-overlay {
-  border-color: rgba(255, 255, 255, 0.7); /* Mantener el borde visible en modo oscuro */
-}
-
-.ion-palette-dark .corner {
-  border-color: white; /* Mantener las esquinas visibles en modo oscuro */
-}
-
-.ion-palette-dark .scanner-content {
-  --background: transparent !important; /* Fondo transparente en modo oscuro */
-  --ion-background-color: transparent !important; /* Anular el fondo de Ionic en modo oscuro */
-}
-
-.ion-palette-dark body:not(.scanner-active) {
-  background: transparent !important; /* Fondo transparente en modo oscuro */
 }
 </style>
