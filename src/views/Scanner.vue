@@ -105,8 +105,8 @@ async function startScanning() {
 
     const result = await BarcodeScanner.startScan({ targetedFormats: [SupportedFormat.QR_CODE] });
     if (result.hasContent) {
-      scannedData.value = result.content;
-      console.log("Código escaneado:", result.content);
+      // scannedData.value = result.content;
+      // console.log("Código escaneado:", result.content);
 
       // Simular el consumo del servicio
       const serviceResponse = await consumeService(result.content);
