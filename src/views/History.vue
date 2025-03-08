@@ -10,7 +10,8 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <ion-list>
+      <!-- Lista de eventos -->
+      <ion-list v-if="events.length > 0">
         <ion-item v-for="(event, index) in events" :key="index">
           <ion-label>
             <h2>{{ event.frac_name }}</h2>
@@ -18,6 +19,13 @@
           </ion-label>
         </ion-item>
       </ion-list>
+
+      <!-- Mensaje cuando no hay eventos -->
+      <div v-else class="empty-state">
+        <ion-text color="medium">
+          <p>No hay información disponible</p>
+        </ion-text>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -34,6 +42,7 @@ import {
   IonItem,
   IonLabel,
   IonTitle,
+  IonText,
 } from "@ionic/vue";
 
 import { ref, onMounted } from "vue";
@@ -45,7 +54,6 @@ const events = ref<{ frac_name: string; type: string; datetime: string }[]>([]);
 const fetchEvents = async () => {
   try {
     const response = await obtenerHistorialesUsuario(1);
-    // console.log("response", response);
     events.value = response.map((assoc: any) => ({
       frac_name: assoc.frac.name,
       type: assoc.type,
@@ -66,85 +74,10 @@ const fetchEvents = async () => {
 onMounted(() => {
   fetchEvents();
 });
-
-// Event list dummy data
-const eventsd = [
-  {
-    type: "exit",
-    date: "2024-02-01",
-    time: "09:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "entry",
-    date: "2024-02-01",
-    time: "10:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "exit",
-    date: "2024-02-01",
-    time: "10:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "entry",
-    date: "2024-02-01",
-    time: "11:30",
-    frac_name: "Capulines"
-  },
-  {
-    type: "exit",
-    date: "2024-02-01",
-    time: "11:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "entry",
-    date: "2024-02-01",
-    time: "14:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "exit",
-    date: "2024-02-01",
-    time: "09:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "entry",
-    date: "2024-02-01",
-    time: "14:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "exit",
-    date: "2024-02-01",
-    time: "14:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "entry",
-    date: "2024-02-01",
-    time: "14:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "exit",
-    date: "2024-02-01",
-    time: "14:00",
-    frac_name: "Capulines"
-  },
-  {
-    type: "entry",
-    date: "2024-02-01",
-    time: "14:00",
-    frac_name: "Capulines"
-  },
-];
 </script>
 
 <style scoped>
+/* Estilos para la lista de eventos */
 ion-item {
   --padding-start: 16px;
   --padding-end: 16px;
@@ -160,6 +93,20 @@ h2 {
 
 p {
   font-size: 0.9rem;
+  color: #666;
+}
+
+/* Estilos para el mensaje de estado vacío */
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+}
+
+.empty-state ion-text {
+  font-size: 1.2rem;
   color: #666;
 }
 </style>

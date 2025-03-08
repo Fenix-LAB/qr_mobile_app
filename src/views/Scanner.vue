@@ -31,7 +31,7 @@
         </div>
 
         <!-- Texto del código escaneado -->
-        <ion-text v-if="scannedData">Código escaneado: {{ scannedData }}</ion-text>
+        <!-- <ion-text v-if="scannedData">Código escaneado: {{ scannedData }}</ion-text> -->
       </div>
 
       <!-- Pantalla de éxito -->
