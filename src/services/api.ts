@@ -1,5 +1,6 @@
 const API_URL = ""; // Reemplaza con la URL de tu API
-const API_GRAPHQL_URL = "https://hashura.redinmex.com/v1/graphql"; // Reemplaza con la URL de tu API GraphQL
+const API_GRAPHQL_URL_HASURA = "https://hashura.redinmex.com/v1/graphql"; // Reemplaza con la URL de tu API GraphQL
+const API_GRAPHQL_URL_STRAWBERRY = "https://api.redinmex.com/qr"
 
 // Función genérica para hacer peticiones REST
 export const apiRequest = async (endpoint: string, method = "GET", body: any = null) => {
@@ -42,9 +43,30 @@ export const apiRequest = async (endpoint: string, method = "GET", body: any = n
 //   }
 // };
 
+export const graphqlRequestStrawberry = async (query: string) => {
+  try {
+    const response = await fetch(API_GRAPHQL_URL_STRAWBERRY, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query }),
+    });
+    
+    const data = await response.json();
+    
+
+
+    return data;
+  } catch (error) {
+    console.error("Error en la petición GraphQL Strawberry:", error);
+    return null;
+  }
+};
+
 export const graphqlRequest = async (query: string) => {
     try {
-      const response = await fetch(API_GRAPHQL_URL, {
+      const response = await fetch(API_GRAPHQL_URL_HASURA, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
