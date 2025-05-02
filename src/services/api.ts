@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:8080/v1"; // Reemplaza con la URL de tu API
+const API_URL = ""; // Reemplaza con la URL de tu API
+const API_GRAPHQL_URL = "https://hashura.redinmex.com/v1/graphql"; // Reemplaza con la URL de tu API GraphQL
 
 // Función genérica para hacer peticiones REST
 export const apiRequest = async (endpoint: string, method = "GET", body: any = null) => {
@@ -43,11 +44,11 @@ export const apiRequest = async (endpoint: string, method = "GET", body: any = n
 
 export const graphqlRequest = async (query: string) => {
     try {
-      const response = await fetch("http://localhost:8080/v1/graphql", {
+      const response = await fetch(API_GRAPHQL_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-hasura-admin-secret": "myadminsecret",
+          "x-hasura-admin-secret": "api-dev-2014",
         },
         body: JSON.stringify({ query }),
       });
