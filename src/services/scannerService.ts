@@ -1,6 +1,6 @@
 import { graphqlRequestStrawberry } from "./api";
 
-export const scannerCode = async (fracNameame: string, userId: number) => {
+export const scannerRequestAccess = async (fracNameame: string, userId: number) => {
     const query = `
         mutation MyMutation {
             qrRequestAccess(fracName: "${fracNameame}", userId: ${userId}) {

@@ -59,8 +59,8 @@ const fetchEvents = async () => {
       type: assoc.type,
       datetime: assoc.datetime,
     }));
-
-    events.value.sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+    // Ordenar eventos por fecha y hora (mas reciente primero)
+    events.value.sort((a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime());
     if (events.value.length === 0) {
       console.log("No events found.");
     } else {

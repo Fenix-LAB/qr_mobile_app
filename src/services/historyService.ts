@@ -4,15 +4,15 @@ import { apiRequest, graphqlRequest } from "./api";
 export const obtenerHistorialesUsuario = async (userId: number) => {
   const query = `
     query MyQuery {
-        qr_shield_event(where: {user_id: {_eq: 1}}) {
-            frac {
-            name
-            location
-            }
-            datetime
-            type
+      qr_shield_event(where: {user_id: {_eq: ${userId}}}, limit: 10) {
+        frac {
+          name
+          location
         }
-        }
+        type
+        datetime
+      }
+    }
     `;
     
   const response = await graphqlRequest(query);

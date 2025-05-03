@@ -69,11 +69,17 @@ import {
 } from "@ionic/vue";
 import { flashlightOutline, checkmarkCircle, closeCircle } from "ionicons/icons";
 import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
+import { scannerRequestAccess } from "@/services/scannerService"; // Asegúrate de que esta ruta sea correcta
 
 const scannedData = ref<string | null>(null);
 const flashlightIcon = ref(flashlightOutline); // Icono de la linterna
 const isFlashlightOn = ref(false); // Estado de la linterna
 const scanResult = ref<"success" | "error" | null>(null); // Estado del resultado del escaneo
+
+// test consumir servicio
+// const serviceResponse = await consumeService("Lomas Verdes");
+// console.log("Respuesta del servicio:", serviceResponse.data.qrRequestAccess.message);
+// console.log("Código de estado:", serviceResponse.data.qrRequestAccess.statusCode);
 
 // Función para verificar permisos
 async function checkPermissions() {
@@ -110,7 +116,8 @@ async function startScanning() {
 
       // Simular el consumo del servicio
       const serviceResponse = await consumeService(result.content);
-      if (true) { // Cambiar a serviceResponse.success si se implementa el servicio real
+      if (serviceResponse.data.qrRequestAccess.statusCode === 200) {
+
         scanResult.value = "success"; // Mostrar pantalla de éxito
       } else {
         scanResult.value = "error"; // Mostrar pantalla de error
@@ -126,12 +133,11 @@ async function startScanning() {
 
 // Función para consumir el servicio (simulación)
 async function consumeService(qrData: string) {
-  // Simula una llamada a un servicio
-  return new Promise<{ success: boolean }>((resolve) => {
-    setTimeout(() => {
-      resolve({ success: qrData.includes("valid") }); // Simula una respuesta exitosa si el QR contiene "valid"
-    }, 1000);
-  });
+  // Llamada al servicio para solicitar acceso requerido Id de usuario y string QR
+  
+  const userId = 1;
+  const response = await scannerRequestAccess(qrData, userId);
+  return response;
 }
 
 // Función para resetear el escáner
