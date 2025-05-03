@@ -4,7 +4,7 @@ import { apiRequest, graphqlRequest } from "./api";
 export const obtenerHistorialesUsuario = async (userId: number) => {
   const query = `
     query MyQuery {
-      qr_shield_event(where: {user_id: {_eq: ${userId}}}, limit: 10) {
+      qr_shield_event(where: {user_id: {_eq: ${userId}}}, order_by: { datetime: desc }, limit: 10) {
         frac {
           name
           location
