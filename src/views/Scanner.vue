@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, onActivated } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -195,6 +195,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   stopScanning();
+});
+
+onActivated(() => {
+  startScanning();
 });
 </script>
 

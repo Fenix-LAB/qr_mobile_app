@@ -77,7 +77,7 @@ import {
   IonSelectOption,
 } from "@ionic/vue";
 
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onActivated } from "vue";
 import { obtenerFraccionamientosUsuario, actulizarFraccionamientoActualUsuario, obtenerFraccionamientosDisponibles } from "@/services/fraccionamientosService";
 
 // Estado para la lista de fraccionamientos del usuario
@@ -152,6 +152,10 @@ const registrar = async () => {
 onMounted(() => {
   cargarFraccionamientos();
   cargarFraccionamientosDisponibles();
+});
+
+onActivated(() => {
+  cargarFraccionamientos(); // Recargar al activar la vista
 });
 </script>
 

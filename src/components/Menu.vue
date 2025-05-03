@@ -195,6 +195,8 @@ export default defineComponent({
       
       // 4. Resetear estado local
       loggedIn.value = false;
+
+      console.log('Logout exitoso, redirigiendo a login...');
       
       
       // 6. Redirigir a login con parámetros de limpieza

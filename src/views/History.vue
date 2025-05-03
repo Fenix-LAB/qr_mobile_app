@@ -49,7 +49,7 @@ import {
   IonText,
 } from "@ionic/vue";
 
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onActivated } from "vue";
 import { obtenerHistorialesUsuario } from "@/services/historyService";
 
 const events = ref<{ frac_name: string; type: string; datetime: string }[]>([]);
@@ -78,6 +78,10 @@ const fetchEvents = async () => {
 };
 
 onMounted(() => {
+  fetchEvents();
+});
+
+onActivated(() => {
   fetchEvents();
 });
 </script>
