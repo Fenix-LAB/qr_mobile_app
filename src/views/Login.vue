@@ -20,7 +20,8 @@
             ></ion-input>
           </ion-item>
 
-          <ion-item>
+          <!-- NO password for now-->
+          <!-- <ion-item>
             <ion-input
               labelPlacement="stacked"
               label="Password"
@@ -29,7 +30,7 @@
               type="password"
               required
             ></ion-input>
-          </ion-item>
+          </ion-item> -->
         </ion-list>
 
         <ion-row responsive-sm class="ion-padding">
@@ -102,6 +103,7 @@ import {
 } from "@ionic/vue";
 import { useStore } from 'vuex'; // Importa el store de Vuex
 import router from '@/router';
+import { loginRequest } from "@/services/loginService";
 
 const username = ref("");
 const password = ref("");
@@ -110,8 +112,12 @@ const submitted = ref(false);
 const showToast = ref(false);
 const toastMessage = ref("");
 
+// const canSubmit = computed(
+//   () => username.value.trim() !== "" && password.value.trim() !== ""
+// );
+
 const canSubmit = computed(
-  () => username.value.trim() !== "" && password.value.trim() !== ""
+  () => username.value.trim() !== ""
 );
 
 const store = useStore(); // Obtén el store
@@ -121,30 +127,35 @@ const navigateToQr = async () => {
   await router.push({ name: 'schedule' });
 };
 
+async function login() {
+  try {
+    const response = await loginRequest(username.value)
+    if (response) {
+      const userData = { userName: username.value, role: response[0].role, userId: response[0].id };
+      console.log("User data:", userData); // Verifica los datos del usuario
+      store.dispatch('user/logIn', userData);
+      localStorage.setItem('userRole', userData.role);
+      localStorage.setItem('userId', userData.userId);
+      navigateToQr();
+    } else {
+      toastMessage.value = "Invalid username or password.";
+      showToast.value = true;
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    toastMessage.value = "An error occurred during login.";
+    showToast.value = true;
+  }
+}
+    
+
 const onLogin = () => {
   submitted.value = true;
 
-  if (username.value === "admin" && password.value === "admin") {
-    // Credenciales de administrador
-    const userData = { userName: username.value, role: "admin" };
-    store.dispatch('user/logIn', userData); // Guardar en Vuex
-    localStorage.setItem('userRole', userData.role); // Guardar en localStorage
-    navigateToQr();
-  } else if (username.value === "user" && password.value === "user") {
-    // Credenciales de usuario normal
-    const userData = { userName: username.value, role: "user" };
-    store.dispatch('user/logIn', userData); // Guardar en Vuex
-    localStorage.setItem('userRole', userData.role); // Guardar en localStorage
-    navigateToQr();
-  } else if (username.value === "sadmin" && password.value === "sadmin") {
-    // Credenciales de superadministrador
-    const userData = { userName: username.value, role: "superadmin" };
-    store.dispatch('user/logIn', userData); // Guardar en Vuex
-    localStorage.setItem('userRole', userData.role); // Guardar en localStorage
-    navigateToQr();
+  if (canSubmit.value) {
+    login();
   } else {
-    // Credenciales incorrectas
-    toastMessage.value = "Invalid username or password.";
+    toastMessage.value = "Please fill in all fields.";
     showToast.value = true;
   }
 };

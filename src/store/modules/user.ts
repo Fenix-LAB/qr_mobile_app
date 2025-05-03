@@ -7,6 +7,7 @@ export interface User {
   isAuthenticated: boolean;
   hasSeenTutorial: boolean;
   role: string; // Nuevo campo para el rol
+  id: number; // ID del usuario, opcional
 }
 
 const defaultState: User = {
@@ -15,6 +16,7 @@ const defaultState: User = {
   isAuthenticated: false,
   hasSeenTutorial: false,
   role: 'user', // Valor por defecto
+  id: 0, // ID del usuario, opcional
 };
 
 const userStore: Module<User, {}> = {
