@@ -68,14 +68,12 @@
             </ion-label>
           </ion-item>
         </ion-menu-toggle>
-        <ion-menu-toggle :auto-hide="false">
-          <ion-item button @click="navigate('/login')">
-            <ion-icon slot="start" :icon="ionIcons.personAdd"></ion-icon>
-            <ion-label>
-              LogOut
-            </ion-label>
-          </ion-item>
-        </ion-menu-toggle>
+          <ion-menu-toggle :auto-hide="false">
+            <ion-item button @click="logout()" class="logout-item">
+              <ion-icon slot="start" :icon="ionIcons.logOut"></ion-icon>
+              <ion-label>Logout</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
         <!-- <ion-item>
           <ion-icon slot="start" :icon="ionIcons.moonOutline"></ion-icon>
             <ion-toggle v-model="localDark" label-placement="start">
@@ -182,8 +180,38 @@ export default defineComponent({
       router.push(url);
     }
 
-    const logout = () => {
+    const logout = async () => {
+    try {
+      // 1. Limpiar el estado en Vuex
+      store.dispatch('user/logOut');
+      
+      // 2. Limpiar todos los datos de autenticación en localStorage
+      localStorage.removeItem('userData');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('token'); // Si usas tokens
+      
+      // 3. Limpiar cualquier dato de sesión relacionado
+      sessionStorage.removeItem('sessionData'); // Si usas sessionStorage
+      
+      // 4. Resetear estado local
+      loggedIn.value = false;
+      
+      
+      // 6. Redirigir a login con parámetros de limpieza
+      await router.push({
+        name: 'login',
+        query: {
+          // Forzar recarga de la página para limpiar estados en memoria
+          timestamp: Date.now()
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error durante logout:', error);
+      // Asegurarse de redirigir incluso si hay error
+      router.push({ name: 'login' });
     }
+  }
 
     onMounted(async () => {
       await storage.create();

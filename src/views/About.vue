@@ -90,7 +90,8 @@ const fraccionamientosDisponibles = ref<{ id: number; name: string }[]>([]);
 const selectedFraccionamiento = ref<string | null>(null);
 
 // ID del usuario almacenado en localStorage (puedes cambiarlo según tu lógica de autenticación)
-const userId = Number(localStorage.getItem('userId'));
+const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+const userId = userData.userId; // Ahora accedes desde el objeto
 
 // Cargar los fraccionamientos del usuario
 const cargarFraccionamientos = async () => {

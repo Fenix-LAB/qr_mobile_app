@@ -72,7 +72,8 @@ import { flashlightOutline, checkmarkCircle, closeCircle } from "ionicons/icons"
 import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
 import { scannerRequestAccess } from "@/services/scannerService"; // Asegúrate de que esta ruta sea correcta
 
-const userId = localStorage.getItem('userId');
+const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+const userId = userData.userId; // Ahora accedes desde el objeto
 const scannedData = ref<string | null>(null);
 const flashlightIcon = ref(flashlightOutline); // Icono de la linterna
 const isFlashlightOn = ref(false); // Estado de la linterna
