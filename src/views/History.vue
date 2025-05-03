@@ -52,11 +52,11 @@ import {
 import { ref, onMounted } from "vue";
 import { obtenerHistorialesUsuario } from "@/services/historyService";
 
-const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-const userId = userData.userId; // Ahora accedes desde el objeto
 const events = ref<{ frac_name: string; type: string; datetime: string }[]>([]);
 
 const fetchEvents = async () => {
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  const userId = userData.userId; // Ahora accedes desde el objeto
   try {
     console.log("Fetching events for user ID:", Number(userId));
     const response = await obtenerHistorialesUsuario(Number(userId));

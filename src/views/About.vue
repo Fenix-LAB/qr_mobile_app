@@ -89,12 +89,11 @@ const fraccionamientosDisponibles = ref<{ id: number; name: string }[]>([]);
 // Estado para el fraccionamiento seleccionado en el popover
 const selectedFraccionamiento = ref<string | null>(null);
 
-// ID del usuario almacenado en localStorage (puedes cambiarlo según tu lógica de autenticación)
-const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-const userId = userData.userId; // Ahora accedes desde el objeto
-
 // Cargar los fraccionamientos del usuario
 const cargarFraccionamientos = async () => {
+  // ID del usuario almacenado en localStorage (puedes cambiarlo según tu lógica de autenticación)
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  const userId = userData.userId;
   try {
     const response = await obtenerFraccionamientosUsuario(userId); // Usar el ID del usuario
     console.log(response);
@@ -112,6 +111,8 @@ const cargarFraccionamientos = async () => {
 
 // Cargar los fraccionamientos disponibles para vincular
 const cargarFraccionamientosDisponibles = async () => {
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  const userId = userData.userId;
   try {
     const response = await obtenerFraccionamientosDisponibles(userId); // Usar el ID del usuario
     if (response && response.length > 0) {
@@ -127,6 +128,8 @@ const cargarFraccionamientosDisponibles = async () => {
 
 // Función para registrar un fraccionamiento
 const registrar = async () => {
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  const userId = userData.userId;
   if (selectedFraccionamiento.value) {
     try {
       const fraccionamiento = fraccionamientosDisponibles.value.find(

@@ -81,7 +81,7 @@ const scanResult = ref<"success" | "error" | null>(null); // Estado del resultad
 const scanServiceResponse = ref<any>(null); // Respuesta del servicio
 
 // test consumir servicio
-// const serviceResponse = await consumeService("Lomas Verdes");
+// const serviceResponse = await consumeService("Lomas Verdes", Number(userId)); // Consumir el servicio con el código escaneado y el ID de usuario
 // console.log("Respuesta del servicio:", serviceResponse.data.qrRequestAccess.message);
 // console.log("Código de estado:", serviceResponse.data.qrRequestAccess.statusCode);
 
@@ -104,6 +104,8 @@ async function checkPermissions() {
 
 // Función para iniciar el escaneo automáticamente
 async function startScanning() {
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  const userId = userData.userId; // Ahora accedes desde el objeto
   try {
     const hasPermission = await checkPermissions();
     if (!hasPermission) return;
@@ -121,7 +123,7 @@ async function startScanning() {
       // console.log("Código escaneado:", result.content);
 
       const serviceResponse = await consumeService(result.content, Number(userId)); // Consumir el servicio con el código escaneado y el ID de usuario
-      if (serviceResponse.data.qrRequestAccess.message) {
+      if (serviceResponse.data.qrRequestAccess.statusCode === 200) {
         scanResult.value = "success"; // Mostrar pantalla de éxito
       } else {
         scanResult.value = "error"; // Mostrar pantalla de error
