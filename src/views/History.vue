@@ -7,8 +7,12 @@
         </ion-buttons>
         <ion-title>Historial</ion-title>
       </ion-toolbar>
+      <ion-toolbar>
+        <ion-text color="medium" class="header-text">
+          Solo se mostrarán los últimos 10 eventos
+        </ion-text>
+      </ion-toolbar>
     </ion-header>
-
     <ion-content :fullscreen="true">
       <!-- Lista de eventos -->
       <ion-list v-if="events.length > 0">
@@ -46,14 +50,14 @@ import {
 } from "@ionic/vue";
 
 import { ref, onMounted } from "vue";
-
 import { obtenerHistorialesUsuario } from "@/services/historyService";
 
+const userId = localStorage.getItem('userId');
 const events = ref<{ frac_name: string; type: string; datetime: string }[]>([]);
 
 const fetchEvents = async () => {
   try {
-    const response = await obtenerHistorialesUsuario(1);
+    const response = await obtenerHistorialesUsuario(Number(userId));
     events.value = response.map((assoc: any) => ({
       frac_name: assoc.frac.name,
       type: assoc.type,

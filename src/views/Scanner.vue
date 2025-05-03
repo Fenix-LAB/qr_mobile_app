@@ -72,6 +72,7 @@ import { flashlightOutline, checkmarkCircle, closeCircle } from "ionicons/icons"
 import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
 import { scannerRequestAccess } from "@/services/scannerService"; // Asegúrate de que esta ruta sea correcta
 
+const userId = localStorage.getItem('userId');
 const scannedData = ref<string | null>(null);
 const flashlightIcon = ref(flashlightOutline); // Icono de la linterna
 const isFlashlightOn = ref(false); // Estado de la linterna
@@ -82,6 +83,8 @@ const scanServiceResponse = ref<any>(null); // Respuesta del servicio
 // const serviceResponse = await consumeService("Lomas Verdes");
 // console.log("Respuesta del servicio:", serviceResponse.data.qrRequestAccess.message);
 // console.log("Código de estado:", serviceResponse.data.qrRequestAccess.statusCode);
+
+
 
 // Función para verificar permisos
 async function checkPermissions() {
@@ -116,7 +119,7 @@ async function startScanning() {
       scannedData.value = result.content;
       // console.log("Código escaneado:", result.content);
 
-      const serviceResponse = await consumeService(result.content);
+      const serviceResponse = await consumeService(result.content, Number(userId)); // Consumir el servicio con el código escaneado y el ID de usuario
       if (serviceResponse.data.qrRequestAccess.message) {
         scanResult.value = "success"; // Mostrar pantalla de éxito
       } else {
@@ -133,7 +136,7 @@ async function startScanning() {
 }
 
 // Función para consumir el servicio (simulación)
-async function consumeService(qrData: string) {
+async function consumeService(qrData: string, userId: number) {
   // Llamada al servicio para solicitar acceso requerido Id de usuario y string QR
   const cleanedData = clearScannedData(qrData); // Limpiar el código escaneado
   if (!cleanedData) {
@@ -141,7 +144,6 @@ async function consumeService(qrData: string) {
     scanResult.value = "error"; // Mostrar pantalla de error
     return;
   }
-  const userId = 1;
   scanServiceResponse.value = qrData; // Guardar el código escaneado
   const response = await scannerRequestAccess(cleanedData, userId);
   return response;
