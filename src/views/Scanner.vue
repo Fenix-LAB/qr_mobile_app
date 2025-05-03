@@ -38,7 +38,7 @@
       <div v-if="scanResult === 'success'" class="result-screen success">
         <ion-icon :icon="checkmarkCircle" class="result-icon"></ion-icon>
         <h2>¡Éxito!</h2>
-        <p>El código QR se ha procesado correctamente.</p>
+        <p>El código QR se ha procesado correctamente</p>
         <ion-button @click="resetScanner">OK</ion-button>
       </div>
 
@@ -46,7 +46,8 @@
       <div v-if="scanResult === 'error'" class="result-screen error">
         <ion-icon :icon="closeCircle" class="result-icon"></ion-icon>
         <h2>Error</h2>
-        <p>Hubo un problema al procesar el código QR.</p>
+        <p>Hubo un problema al procesar el código QR </p>
+        <p>Mensaje: {{ scanServiceResponse }}</p>
         <ion-button @click="resetScanner">OK</ion-button>
       </div>
     </ion-content>
@@ -75,6 +76,7 @@ const scannedData = ref<string | null>(null);
 const flashlightIcon = ref(flashlightOutline); // Icono de la linterna
 const isFlashlightOn = ref(false); // Estado de la linterna
 const scanResult = ref<"success" | "error" | null>(null); // Estado del resultado del escaneo
+const scanServiceResponse = ref<any>(null); // Respuesta del servicio
 
 // test consumir servicio
 // const serviceResponse = await consumeService("Lomas Verdes");
@@ -111,16 +113,15 @@ async function startScanning() {
 
     const result = await BarcodeScanner.startScan({ targetedFormats: [SupportedFormat.QR_CODE] });
     if (result.hasContent) {
-      // scannedData.value = result.content;
+      scannedData.value = result.content;
       // console.log("Código escaneado:", result.content);
 
-      // Simular el consumo del servicio
       const serviceResponse = await consumeService(result.content);
-      if (serviceResponse.data.qrRequestAccess.statusCode === 200) {
-
+      if (serviceResponse.data.qrRequestAccess.message) {
         scanResult.value = "success"; // Mostrar pantalla de éxito
       } else {
         scanResult.value = "error"; // Mostrar pantalla de error
+        scanServiceResponse.value = serviceResponse.data.qrRequestAccess.message; // Guardar mensaje de error
       }
     } else {
       console.log("No se detectó ningún código.");
@@ -134,9 +135,15 @@ async function startScanning() {
 // Función para consumir el servicio (simulación)
 async function consumeService(qrData: string) {
   // Llamada al servicio para solicitar acceso requerido Id de usuario y string QR
-  
+  const cleanedData = clearScannedData(qrData); // Limpiar el código escaneado
+  if (!cleanedData) {
+    console.error("Código escaneado inválido.");
+    scanResult.value = "error"; // Mostrar pantalla de error
+    return;
+  }
   const userId = 1;
-  const response = await scannerRequestAccess(qrData, userId);
+  scanServiceResponse.value = qrData; // Guardar el código escaneado
+  const response = await scannerRequestAccess(cleanedData, userId);
   return response;
 }
 
@@ -169,6 +176,11 @@ async function toggleFlashlight() {
   } catch (error) {
     console.error("Error al controlar la linterna:", error);
   }
+}
+
+function clearScannedData(scannedData: string | null) {
+  // eliminar espacios en blanco al inicio y final
+  return scannedData ? scannedData.trim() : null;
 }
 
 // Manejo de ciclo de vida
