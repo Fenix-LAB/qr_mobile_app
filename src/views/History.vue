@@ -49,7 +49,7 @@ import {
   IonText,
 } from "@ionic/vue";
 import { useStore } from 'vuex';
-import { ref, onMounted, onActivated, computed } from "vue";
+import { ref, onMounted, onActivated, computed, watch } from "vue";
 import { obtenerHistorialesUsuario } from "@/services/historyService";
 
 const events = ref<{ frac_name: string; type: string; datetime: string }[]>([]);
@@ -94,6 +94,16 @@ onMounted(() => {
 onActivated(() => {
   fetchEvents();
 });
+
+watch(
+  () => store.state.user.id,
+  (id) => {
+    if (id && id > 0) {
+      fetchEvents();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>

@@ -77,7 +77,7 @@ import {
   IonSelectOption,
 } from "@ionic/vue";
 import { useStore } from 'vuex';
-import { ref, onMounted, onActivated, computed } from "vue";
+import { ref, onMounted, onActivated, computed, watch } from "vue";
 import { obtenerFraccionamientosUsuario, actulizarFraccionamientoActualUsuario, obtenerFraccionamientosDisponibles } from "@/services/fraccionamientosService";
 
 const store = useStore();
@@ -91,10 +91,10 @@ const fraccionamientosDisponibles = ref<{ id: number; name: string }[]>([]);
 // Estado para el fraccionamiento seleccionado en el popover
 const selectedFraccionamiento = ref<string | null>(null);
 
-const userId = computed(() => store.state.user.id);
 // Cargar los fraccionamientos del usuario
 const cargarFraccionamientos = async () => {
   // ID del usuario almacenado en localStorage (puedes cambiarlo según tu lógica de autenticación)
+  const userId = computed(() => store.state.user.id);
   try {
     const response = await obtenerFraccionamientosUsuario(userId.value); // Usar el ID del usuario
     console.log(response);
@@ -152,12 +152,22 @@ const registrar = async () => {
 // Cargar datos al montar el componente
 onMounted(() => {
   cargarFraccionamientos();
-  cargarFraccionamientosDisponibles();
+  // cargarFraccionamientosDisponibles();
 });
 
 onActivated(() => {
   cargarFraccionamientos(); // Recargar al activar la vista
 });
+
+watch(
+  () => store.state.user.id,
+  (id) => {
+    if (id && id > 0) {
+      cargarFraccionamientos();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>

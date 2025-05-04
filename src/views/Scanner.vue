@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, onActivated, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount, onActivated, computed, watch } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -79,7 +79,6 @@ const flashlightIcon = ref(flashlightOutline); // Icono de la linterna
 const isFlashlightOn = ref(false); // Estado de la linterna
 const scanResult = ref<"success" | "error" | null>(null); // Estado del resultado del escaneo
 const scanServiceResponse = ref<any>(null); // Respuesta del servicio
-const userId = computed(() => store.state.user.id);
 // test consumir servicio
 // const serviceResponse = await consumeService("Lomas Verdes", Number(userId)); // Consumir el servicio con el código escaneado y el ID de usuario
 // console.log("Respuesta del servicio:", serviceResponse.data.qrRequestAccess.message);
@@ -104,6 +103,7 @@ async function checkPermissions() {
 
 // Función para iniciar el escaneo automáticamente
 async function startScanning() {
+  const userId = computed(() => store.state.user.id);
   try {
     const hasPermission = await checkPermissions();
     if (!hasPermission) return;
@@ -198,6 +198,16 @@ onBeforeUnmount(() => {
 onActivated(() => {
   startScanning();
 });
+
+watch(
+  () => store.state.user.id,
+  (id) => {
+    if (id && id > 0) {
+      startScanning(); // Reiniciar el escáner al cambiar el ID de usuari
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>
