@@ -43,6 +43,9 @@ const userStore: Module<User, {}> = {
     setRole(state, role: string) {
       state.role = role; // Mutación para actualizar el rol
     },
+    setId(state, id: number) {
+      state.id = id; // Mutación para actualizar el ID del usuario
+    },
   },
   actions: {
     sawTutorial({ commit }) {

@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, onActivated } from "vue";
+import { ref, onMounted, onBeforeUnmount, onActivated, computed } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -68,18 +68,18 @@ import {
   IonText,
   IonButton,
 } from "@ionic/vue";
+import { useStore } from 'vuex';
 import { flashlightOutline, checkmarkCircle, closeCircle } from "ionicons/icons";
 import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
 import { scannerRequestAccess } from "@/services/scannerService"; // Asegúrate de que esta ruta sea correcta
 
-const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-const userId = userData.userId; // Ahora accedes desde el objeto
+const store = useStore(); // Usar Vuex para manejar el estado global
 const scannedData = ref<string | null>(null);
 const flashlightIcon = ref(flashlightOutline); // Icono de la linterna
 const isFlashlightOn = ref(false); // Estado de la linterna
 const scanResult = ref<"success" | "error" | null>(null); // Estado del resultado del escaneo
 const scanServiceResponse = ref<any>(null); // Respuesta del servicio
-
+const userId = computed(() => store.state.user.id);
 // test consumir servicio
 // const serviceResponse = await consumeService("Lomas Verdes", Number(userId)); // Consumir el servicio con el código escaneado y el ID de usuario
 // console.log("Respuesta del servicio:", serviceResponse.data.qrRequestAccess.message);
@@ -104,8 +104,6 @@ async function checkPermissions() {
 
 // Función para iniciar el escaneo automáticamente
 async function startScanning() {
-  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-  const userId = userData.userId; // Ahora accedes desde el objeto
   try {
     const hasPermission = await checkPermissions();
     if (!hasPermission) return;
@@ -122,7 +120,7 @@ async function startScanning() {
       scannedData.value = result.content;
       // console.log("Código escaneado:", result.content);
 
-      const serviceResponse = await consumeService(result.content, Number(userId)); // Consumir el servicio con el código escaneado y el ID de usuario
+      const serviceResponse = await consumeService(result.content, userId.value); // Consumir el servicio con el código escaneado y el ID de usuario
       if (serviceResponse.data.qrRequestAccess.statusCode === 200) {
         scanResult.value = "success"; // Mostrar pantalla de éxito
       } else {

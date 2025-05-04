@@ -71,11 +71,13 @@ export default {
     IonIcon,
   },
   setup() {
+    console.log("Tabs component mounted");
     const store = useStore();
 
     // Recuperar el rol del localStorage al cargar la página
     onMounted(() => {
       const userRole = localStorage.getItem('userRole');
+      console.log("User role from localStorage:", userRole);
       if (userRole) {
         store.commit('user/setRole', userRole); // Actualizar el estado de Vuex
       }

@@ -48,18 +48,21 @@ import {
   IonTitle,
   IonText,
 } from "@ionic/vue";
-
-import { ref, onMounted, onActivated } from "vue";
+import { useStore } from 'vuex';
+import { ref, onMounted, onActivated, computed } from "vue";
 import { obtenerHistorialesUsuario } from "@/services/historyService";
 
 const events = ref<{ frac_name: string; type: string; datetime: string }[]>([]);
+const store = useStore();
+
 
 const fetchEvents = async () => {
-  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-  const userId = userData.userId; // Ahora accedes desde el objeto
+  // const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  // const userId = userData.userId; // Ahora accedes desde el objeto
+  const userId = computed(() => store.state.user.id);
   try {
-    console.log("Fetching events for user ID:", Number(userId));
-    const response = await obtenerHistorialesUsuario(Number(userId));
+    console.log("Fetching events for user ID:", userId.value);
+    const response = await obtenerHistorialesUsuario(userId.value);
     events.value = response.map((assoc: any) => ({
       frac_name: assoc.frac.name,
       type: assoc.type,
@@ -78,6 +81,13 @@ const fetchEvents = async () => {
 };
 
 onMounted(() => {
+  // recuperar el id del localStorage al cargar la página y seterlo en vuex
+  const userId = localStorage.getItem('userId');
+  console.log("User ID from localStorage:", userId);
+  if (userId) {
+    store.commit('user/setId', userId); // Actualizar el estado de Vuex
+    console.log("User ID set in Vuex:", store.state.user.id);
+  }
   fetchEvents();
 });
 

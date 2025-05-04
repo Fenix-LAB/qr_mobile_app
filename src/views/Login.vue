@@ -97,9 +97,9 @@ const login = async () => {
         userId: response[0].id 
       };
 
-      console.log("Data saved in Vuex:", userData);
+      // console.log("Data saved in Vuex:", userData);
       
-      // Guardar en Vuex
+      // // Guardar en Vuex
       store.dispatch('user/logIn', userData);
       
       // Persistir en localStorage
@@ -110,6 +110,12 @@ const login = async () => {
         loggedIn: true,
         lastLogin: new Date().toISOString()
       }));
+
+      // guardar en el store de Vuex
+      store.commit('user/setId', userData.userId);
+
+      // comprobar que se guardó correctamente
+      console.log("User data saved in Vuex:", store.state.user.id);
       
       console.log("User data saved in localStorage:", localStorage.getItem('userData'));
       navigateToQr();
@@ -137,6 +143,7 @@ onMounted(() => {
       // Auto-login si hay sesión guardada
       username.value = parsedData.userName;
       navigateToQr();
+      // login();
     }
   }
 });
