@@ -85,7 +85,12 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'superadmin',
         name: 'superadmin',
-        component: () => import('@/views/SuperAdmin.vue')
+        component: () => import('@/views/SuperAdmin.vue'),
+      },
+      {
+        path: 'createfrac',
+        name: 'createfrac',
+        component: () => import('@/views/CreateFrac.vue')
       }
     ]
   },

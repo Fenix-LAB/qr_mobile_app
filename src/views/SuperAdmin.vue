@@ -1,78 +1,96 @@
 <template>
-    <ion-page>
-      <ion-header :translucent="true">
-        <ion-toolbar>
-          <ion-buttons slot="start">
-            <ion-menu-button></ion-menu-button>
-          </ion-buttons>
-          <ion-title>Super Admin</ion-title>
-        </ion-toolbar>
-      </ion-header>
-  
-      <ion-content :fullscreen="true" class="ion-padding">
-        <!-- Sección de creación de fraccionamientos -->
+  <ion-page>
+    <ion-header :translucent="true">
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>Super Admin</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content :fullscreen="true" class="ion-padding">
+      <!-- Sección de acciones principales -->
+      <div class="action-grid">
+        <!-- Resumen rápido (opcional) -->
         <ion-card>
           <ion-card-header>
-            <ion-card-title>Crear Fraccionamiento</ion-card-title>
+            <ion-card-title>Resumen del Sistema</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <ion-item>
-              <ion-label position="stacked">Nombre del Fraccionamiento</ion-label>
-              <ion-input v-model="newFraccionamiento.name" placeholder="Nombre"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">Descripción</ion-label>
-              <ion-textarea v-model="newFraccionamiento.description" placeholder="Descripción"></ion-textarea>
-            </ion-item>
-            <ion-button expand="full" @click="createFraccionamiento">Crear</ion-button>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <ion-icon :icon="businessOutline" size="large"></ion-icon>
+                <h3>{{ fraccionamientos.length }}</h3>
+                <p>Fraccionamientos</p>
+              </div>
+              <div class="stat-item">
+                <ion-icon :icon="peopleOutline" size="large"></ion-icon>
+                <h3>{{ users.length }}</h3>
+                <p>Usuarios</p>
+              </div>
+              <div class="stat-item">
+                <ion-icon :icon="radioOutline" size="large"></ion-icon>
+                <h3>24</h3>
+                <p>IoT Devices</p>
+              </div>
+            </div>
           </ion-card-content>
         </ion-card>
-  
-        <!-- Sección de fraccionamientos -->
-        <ion-card>
+
+        <!-- Tarjeta para crear fraccionamientos -->
+        <ion-card class="action-card">
           <ion-card-header>
+            <ion-icon :icon="businessOutline" size="large" color="primary"></ion-icon>
             <ion-card-title>Fraccionamientos</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <ion-list>
-              <ion-item v-for="(fracc, index) in visibleFraccionamientos" :key="index">
-                <ion-label>
-                  <h2>{{ fracc.name }}</h2>
-                  <p>{{ fracc.description }}</p>
-                </ion-label>
-              </ion-item>
-            </ion-list>
-            <ion-button v-if="fraccionamientos.length > 3" expand="full" @click="showAllFraccionamientos">
-              {{ showAllFracc ? "Mostrar menos" : "Ver todos" }}
+            <p>Administra y crea nuevos fraccionamientos en el sistema</p>
+            <ion-button expand="block" class="action-button" router-link="/tabs/createfrac">
+              Gestionar
+              <ion-icon slot="end" :icon="arrowForwardOutline"></ion-icon>
             </ion-button>
           </ion-card-content>
         </ion-card>
-  
-        <!-- Sección de usuarios -->
-        <ion-card>
+
+        <!-- Tarjeta para usuarios -->
+        <ion-card class="action-card">
           <ion-card-header>
+            <ion-icon :icon="peopleOutline" size="large" color="primary"></ion-icon>
             <ion-card-title>Usuarios</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <ion-list>
-              <ion-item v-for="(user, index) in visibleUsers" :key="index">
-                <ion-label>
-                  <h2>{{ user.name }}</h2>
-                  <p>{{ user.email }}</p>
-                </ion-label>
-              </ion-item>
-            </ion-list>
-            <ion-button v-if="users.length > 5" expand="full" @click="showAllUsers">
-              {{ showAllUsersFlag ? "Mostrar menos" : "Ver todos" }}
+            <p>Administra usuarios y sus permisos en el sistema</p>
+            <ion-button expand="block" router-link="/admin/usuarios" class="action-button">
+              Gestionar
+              <ion-icon slot="end" :icon="arrowForwardOutline"></ion-icon>
             </ion-button>
           </ion-card-content>
         </ion-card>
-      </ion-content>
-    </ion-page>
-  </template>
+
+        <!-- Tarjeta para configuración -->
+        <ion-card class="action-card">
+          <ion-card-header>
+            <ion-icon :icon="settingsOutline" size="large" color="primary"></ion-icon>
+            <ion-card-title>Configuración</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Configuración global del sistema y preferencias</p>
+            <ion-button expand="block" router-link="/admin/configuracion" class="action-button">
+              Gestionar
+              <ion-icon slot="end" :icon="arrowForwardOutline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      
+    </ion-content>
+  </ion-page>
+</template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -83,80 +101,100 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonTextarea,
   IonButton,
-  IonList,
+  IonIcon,
+  IonButtons,
+  IonMenuButton,
 } from "@ionic/vue";
+import {
+  businessOutline,
+  peopleOutline,
+  settingsOutline,
+  arrowForwardOutline,
+  radioOutline,
+} from "ionicons/icons";
 
-// Datos de ejemplo para fraccionamientos y usuarios
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+// Datos de ejemplo (puedes reemplazar con datos reales)
 const fraccionamientos = ref([
   { name: "Fraccionamiento 1", description: "Descripción 1" },
   { name: "Fraccionamiento 2", description: "Descripción 2" },
   { name: "Fraccionamiento 3", description: "Descripción 3" },
-  { name: "Fraccionamiento 4", description: "Descripción 4" },
 ]);
 
 const users = ref([
   { name: "Usuario 1", email: "usuario1@example.com" },
   { name: "Usuario 2", email: "usuario2@example.com" },
   { name: "Usuario 3", email: "usuario3@example.com" },
-  { name: "Usuario 4", email: "usuario4@example.com" },
-  { name: "Usuario 5", email: "usuario5@example.com" },
-  { name: "Usuario 6", email: "usuario6@example.com" },
 ]);
 
-// Estado para el nuevo fraccionamiento
-const newFraccionamiento = ref({
-  name: "",
-  description: "",
-});
 
-// Estado para controlar la visibilidad de todos los elementos
-const showAllFracc = ref(false);
-const showAllUsersFlag = ref(false);
 
-// Lógica para crear un fraccionamiento
-const createFraccionamiento = () => {
-  if (newFraccionamiento.value.name && newFraccionamiento.value.description) {
-    fraccionamientos.value.push({
-      name: newFraccionamiento.value.name,
-      description: newFraccionamiento.value.description,
-    });
-    newFraccionamiento.value.name = "";
-    newFraccionamiento.value.description = "";
-  }
+const NavigateToFraccionamientos = async () => {
+  // Lógica para navegar a la página de fraccionamientos
+  await router.push({ name: "CreateFrac" });
 };
-
-// Lógica para mostrar todos los fraccionamientos
-const showAllFraccionamientos = () => {
-  showAllFracc.value = !showAllFracc.value;
-};
-
-// Lógica para mostrar todos los usuarios
-const showAllUsers = () => {
-  showAllUsersFlag.value = !showAllUsersFlag.value;
-};
-
-// Computed para mostrar solo algunos fraccionamientos
-const visibleFraccionamientos = computed(() => {
-  return showAllFracc.value ? fraccionamientos.value : fraccionamientos.value.slice(0, 3);
-});
-
-// Computed para mostrar solo algunos usuarios
-const visibleUsers = computed(() => {
-  return showAllUsersFlag.value ? users.value : users.value.slice(0, 5);
-});
 </script>
 
 <style scoped>
-ion-card {
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
   margin-bottom: 20px;
 }
 
-ion-button {
-  margin-top: 10px;
+.action-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.action-card ion-card-header {
+  flex: 0 0 auto;
+}
+
+.action-card ion-card-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.action-card p {
+  flex-grow: 1;
+  color: var(--ion-color-medium);
+}
+
+.action-button {
+  margin-top: auto;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  text-align: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-item h3 {
+  margin: 8px 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.stat-item p {
+  margin: 0;
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
 }
 </style>
