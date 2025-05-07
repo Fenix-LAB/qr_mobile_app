@@ -57,7 +57,7 @@ import {
   informationCircle,
   idCardOutline,
 } from 'ionicons/icons';
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex'; // Importa el store de Vuex
 
 export default {
@@ -81,9 +81,23 @@ export default {
       if (userRole) {
         store.commit('user/setRole', userRole); // Actualizar el estado de Vuex
       }
-    });
+    }); // <-- cierre correcto del onMounted
 
-    // Computed properties para verificar el rol del usuario
+    // Vigilar si el ID de usuario cambia y actualizar rol desde localStorage (útil en refresh)
+    watch(
+      () => store.state.user.id,
+      (id) => {
+        if (id && id > 0) {
+          const userRole = localStorage.getItem('userRole');
+          console.log("Re-watching userId change, updating role:", userRole);
+          if (userRole) {
+            store.commit('user/setRole', userRole);
+          }
+        }
+      },
+      { immediate: true }
+    );
+
     const isAdmin = computed(() => store.state.user.role === 'admin');
     const isSuperAdmin = computed(() => store.state.user.role === 'superadmin');
 
