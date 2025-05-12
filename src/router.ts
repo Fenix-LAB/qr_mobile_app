@@ -97,6 +97,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'newfrac',
         component: () => import('@/views/NewFrac.vue')
       },
+      {
+        path: 'newaccess',
+        name: 'newaccess',
+        component: () => import('@/views/NewAccess.vue')
+      },
     ]
   },
   { path: '/', redirect: 'tutorial' }

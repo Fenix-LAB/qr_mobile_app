@@ -102,7 +102,8 @@ onMounted(async () => {
 });
 
 const navigateToAddAccess = (fraccId: number) => {
-  router.push(`/fraccionamiento/${fraccId}/accesos/nuevo`);
+  // router.push(`/fraccionamiento/${fraccId}/accesos/nuevo`);
+  router.push({ name: 'newaccess', params: { fraccId } });
 };
 </script>
 

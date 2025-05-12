@@ -1,0 +1,399 @@
+<template>
+    <ion-page>
+      <ion-header>
+        <ion-toolbar color="tertiary">
+          <ion-buttons slot="start">
+            <ion-back-button default-href="/admin/fraccionamientos" color="light"></ion-back-button>
+          </ion-buttons>
+          <ion-title>Nuevo Acceso</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="createAccess" :disabled="!isFormValid" strong>
+              <ion-icon slot="start" :icon="qrCodeOutline"></ion-icon>
+              Generar QRs
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+  
+      <ion-content class="ion-padding" color="light">
+        <div class="form-container">
+          <!-- Header ilustrativo -->
+          <div class="form-header">
+            <ion-icon :icon="walkOutline" color="tertiary"></ion-icon>
+            <h2>Configurar nuevo acceso</h2>
+            <p>Registra un nuevo punto de acceso para el fraccionamiento</p>
+          </div>
+  
+          <!-- Formulario principal -->
+          <ion-list lines="none" class="form-list">
+            <!-- Nombre del acceso -->
+            <ion-item fill="outline" class="form-item">
+              <ion-icon slot="start" :icon="pricetagOutline" color="medium"></ion-icon>
+              <ion-label position="floating">Nombre del acceso</ion-label>
+              <ion-input
+                v-model="accessData.name"
+                placeholder="Ej. Portón Principal, Entrada Norte"
+                required
+                clear-input
+              ></ion-input>
+            </ion-item>
+  
+            <!-- Dispositivo IoT -->
+            <ion-card class="iot-card">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon :icon="hardwareChipOutline" color="tertiary"></ion-icon>
+                  Dispositivo IoT
+                </ion-card-title>
+                <ion-card-subtitle>Registra un nuevo dispositivo</ion-card-subtitle>
+              </ion-card-header>
+              
+              <ion-card-content>
+                <ion-item fill="outline" class="form-item">
+                  <ion-label position="floating">Número de serie</ion-label>
+                  <ion-input
+                    v-model="iotDevice.serialNumber"
+                    placeholder="Ingresa el código del dispositivo"
+                    required
+                  ></ion-input>
+                </ion-item>
+  
+                <div class="device-preview" v-if="devicePreview.name">
+                  <ion-chip color="success">
+                    <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+                    <ion-label>{{ devicePreview.name }}</ion-label>
+                  </ion-chip>
+                  <ion-text color="medium">
+                    <small>Dispositivo registrado automáticamente</small>
+                  </ion-text>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-list>
+  
+          <!-- Sección de ayuda -->
+          <div class="help-section">
+            <ion-accordion-group>
+              <ion-accordion value="instructions">
+                <ion-item slot="header" color="light">
+                  <ion-label>¿Cómo obtener el número de serie?</ion-label>
+                </ion-item>
+                <div slot="content" class="accordion-content">
+                  <ol>
+                    <li>Localiza la etiqueta en el dispositivo físico</li>
+                    <li>Busca el código de 12 dígitos</li>
+                    <li>Ingrésalo exactamente como aparece</li>
+                  </ol>
+                  <ion-img src="/assets/iot-device-example.png" alt="Ejemplo dispositivo"></ion-img>
+                </div>
+              </ion-accordion>
+            </ion-accordion-group>
+          </div>
+        </div>
+  
+        <!-- Modal para mostrar QRs generados -->
+        <ion-modal 
+          :is-open="showQRModal" 
+          @didDismiss="showQRModal = false"
+          class="qr-modal"
+        >
+          <ion-header>
+            <ion-toolbar color="tertiary">
+              <ion-title>QRs Generados</ion-title>
+              <ion-buttons slot="end">
+                <ion-button @click="downloadAllQrs">
+                  <ion-icon slot="start" :icon="downloadOutline"></ion-icon>
+                  Descargar ambos
+                </ion-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          
+          <ion-content class="ion-padding">
+            <div class="qr-display">
+              <div class="qr-section">
+                <h3>
+                  <ion-icon :icon="enterOutline" color="success"></ion-icon>
+                  QR Entrada
+                </h3>
+                <div class="qr-container">
+                  <img :src="generatedQrs.entry" alt="QR Entrada" v-if="generatedQrs.entry">
+                  <ion-skeleton-text v-else animated style="width: 200px; height: 200px"></ion-skeleton-text>
+                </div>
+                <ion-button expand="block" @click="downloadQr(generatedQrs.entry, 'entrada')" color="success">
+                  <ion-icon slot="start" :icon="downloadOutline"></ion-icon>
+                  Descargar entrada
+                </ion-button>
+              </div>
+  
+              <div class="qr-section">
+                <h3>
+                  <ion-icon :icon="exitOutline" color="danger"></ion-icon>
+                  QR Salida
+                </h3>
+                <div class="qr-container">
+                  <img :src="generatedQrs.exit" alt="QR Salida" v-if="generatedQrs.exit">
+                  <ion-skeleton-text v-else animated style="width: 200px; height: 200px"></ion-skeleton-text>
+                </div>
+                <ion-button expand="block" @click="downloadQr(generatedQrs.exit, 'salida')" color="danger">
+                  <ion-icon slot="start" :icon="downloadOutline"></ion-icon>
+                  Descargar salida
+                </ion-button>
+              </div>
+            </div>
+  
+            <ion-button expand="block" @click="finishProcess" class="finish-btn">
+              <ion-icon slot="start" :icon="checkmarkDoneOutline"></ion-icon>
+              Finalizar proceso
+            </ion-button>
+          </ion-content>
+        </ion-modal>
+      </ion-content>
+    </ion-page>
+  </template>
+  
+  <script setup lang="ts">
+  import { ref, computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import {
+    IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
+    IonButton, IonIcon, IonButtons, IonBackButton,
+    IonItem, IonLabel, IonInput, IonList, IonCard,
+    IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
+    IonChip, IonText, IonModal, IonAccordion, IonAccordionGroup,
+    IonSkeletonText, IonImg, toastController
+  } from '@ionic/vue';
+  import {
+    qrCodeOutline, walkOutline, pricetagOutline,
+    hardwareChipOutline, checkmarkCircleOutline,
+    downloadOutline, enterOutline, exitOutline,
+    checkmarkDoneOutline, informationCircleOutline
+  } from 'ionicons/icons';
+  
+  const router = useRouter();
+  
+  // Datos del formulario
+  const accessData = ref({
+    name: '',
+  });
+  
+  const iotDevice = ref({
+    serialNumber: '',
+  });
+  
+  const devicePreview = ref({
+    name: '',
+  });
+  
+  const generatedQrs = ref({
+    entry: '',
+    exit: ''
+  });
+  
+  const showQRModal = ref(false);
+  
+  // Validación del formulario
+  const isFormValid = computed(() => {
+    return accessData.value.name && iotDevice.value.serialNumber;
+  });
+  
+  // Simular generación de nombre de dispositivo
+  const generateDeviceName = (serial: string) => {
+    return `IoT-${serial.substring(0, 4)}-${serial.substring(8)}`;
+  };
+  
+  // Registrar dispositivo IoT
+  const registerDevice = async () => {
+    if (!iotDevice.value.serialNumber) return;
+    
+    try {
+      // Simulación de API call
+      // const response = await api.registerIoTDevice(iotDevice.value.serialNumber);
+      devicePreview.value.name = generateDeviceName(iotDevice.value.serialNumber);
+      
+      const toast = await toastController.create({
+        message: 'Dispositivo registrado correctamente',
+        duration: 2000,
+        color: 'success'
+      });
+      await toast.present();
+      
+    } catch (error) {
+      const toast = await toastController.create({
+        message: 'Error registrando dispositivo',
+        duration: 2000,
+        color: 'danger'
+      });
+      await toast.present();
+    }
+  };
+  
+  // Crear el acceso y generar QRs
+  const createAccess = async () => {
+    try {
+      // Primero registrar el dispositivo si no tiene nombre
+      if (!devicePreview.value.name) {
+        await registerDevice();
+      }
+  
+      // Simulación de API call para crear acceso
+      // const response = await api.createAccess({
+      //   name: accessData.value.name,
+      //   deviceSerial: iotDevice.value.serialNumber
+      // });
+  
+      // Datos simulados
+      generatedQrs.value = {
+        entry: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ENTRADA-' + Math.random().toString(36).substring(2),
+        exit: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=SALIDA-' + Math.random().toString(36).substring(2)
+      };
+  
+      showQRModal.value = true;
+      
+    } catch (error) {
+      const toast = await toastController.create({
+        message: 'Error creando el acceso',
+        duration: 2000,
+        color: 'danger'
+      });
+      await toast.present();
+    }
+  };
+  
+  // Descargar QR individual
+  const downloadQr = (qrData: string, type: string) => {
+    const link = document.createElement('a');
+    link.href = qrData;
+    link.download = `QR_${type}_${accessData.value.name.replace(/\s+/g, '_')}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+  // Descargar ambos QRs
+  const downloadAllQrs = () => {
+    if (generatedQrs.value.entry) downloadQr(generatedQrs.value.entry, 'entrada');
+    if (generatedQrs.value.exit) downloadQr(generatedQrs.value.exit, 'salida');
+  };
+  
+  // Finalizar proceso
+  const finishProcess = () => {
+    showQRModal.value = false;
+    router.push('/admin/fraccionamientos');
+  };
+  </script>
+  
+  <style scoped>
+  .form-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .form-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  
+  .form-header ion-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+  
+  .form-header h2 {
+    font-weight: 600;
+    color: var(--ion-color-tertiary);
+  }
+  
+  .form-header p {
+    color: var(--ion-color-medium);
+    margin-top: 4px;
+  }
+  
+  .form-list {
+    background: transparent;
+  }
+  
+  .form-item {
+    margin-bottom: 16px;
+    border-radius: 12px;
+    --background: white;
+  }
+  
+  .iot-card {
+    margin: 20px 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .device-preview {
+    margin-top: 16px;
+    text-align: center;
+  }
+  
+  .help-section {
+    margin-top: 32px;
+  }
+  
+  .accordion-content {
+    padding: 16px;
+    background: var(--ion-color-light);
+  }
+  
+  .accordion-content ol {
+    padding-left: 20px;
+  }
+  
+  .accordion-content ion-img {
+    max-width: 300px;
+    margin: 16px auto 0;
+    border: 1px solid var(--ion-color-medium-shade);
+    border-radius: 8px;
+  }
+  
+  .qr-modal .toolbar-title {
+    text-align: center;
+  }
+  
+  .qr-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    margin-bottom: 24px;
+  }
+  
+  .qr-section {
+    text-align: center;
+  }
+  
+  .qr-section h3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .qr-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  
+  .qr-container img {
+    width: 200px;
+    height: 200px;
+    border: 1px solid var(--ion-color-medium);
+    padding: 8px;
+    background: white;
+  }
+  
+  .finish-btn {
+    margin-top: 24px;
+  }
+  
+  @media (max-width: 768px) {
+    .qr-display {
+      grid-template-columns: 1fr;
+    }
+  }
+  </style>
