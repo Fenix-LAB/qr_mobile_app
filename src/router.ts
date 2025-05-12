@@ -91,7 +91,12 @@ const routes: Array<RouteRecordRaw> = [
         path: 'createfrac',
         name: 'createfrac',
         component: () => import('@/views/CreateFrac.vue')
-      }
+      },
+      {
+        path: 'newfrac',
+        name: 'newfrac',
+        component: () => import('@/views/NewFrac.vue')
+      },
     ]
   },
   { path: '/', redirect: 'tutorial' }
