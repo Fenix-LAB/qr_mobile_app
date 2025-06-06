@@ -13,6 +13,11 @@ Esta aplicacion permite llevar un control de los accesos a un fraccionamiento, p
 npm install
 ```
 
+## install ionic
+```bash
+npm install -g @ionic/cli
+```
+
 ## Usage
 ```bash
 ionic serve
