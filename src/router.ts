@@ -102,6 +102,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'newaccess',
         component: () => import('@/views/NewAccess.vue')
       },
+      {
+        path: 'newdevice',
+        name: 'newdevice',
+        component: () => import('@/views/NewDevice.vue')
+      },
     ]
   },
   { path: '/', redirect: 'tutorial' }

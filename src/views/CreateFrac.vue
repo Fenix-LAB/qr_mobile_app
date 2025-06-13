@@ -51,6 +51,13 @@
           <ion-icon :icon="addOutline"></ion-icon>
         </ion-fab-button>
       </ion-fab>
+      <!-- Botón para crear un dispositivo -->
+      <ion-fab vertical="bottom" horizontal="start" slot="fixed">
+        <ion-fab-button router-link="/tabs/newdevice">
+          <ion-icon :icon="hardwareChipOutline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+
     </ion-content>
   </ion-page>
 </template>
@@ -63,7 +70,7 @@ import {
   IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
   IonButton, IonIcon, IonButtons, IonBackButton, IonFab, IonFabButton
 } from '@ionic/vue';
-import { addOutline, businessOutline, qrCodeOutline } from 'ionicons/icons';
+import { addOutline, businessOutline, qrCodeOutline, hardwareChipOutline } from 'ionicons/icons';
 // import { obtenerFraccionamientos } from '@/services/fraccionamientoService';
 
 const router = useRouter();
