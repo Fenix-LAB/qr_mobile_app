@@ -126,8 +126,8 @@ const validateSerial = () => {
 };
 
 const generateDeviceName = () => {
-  // Esta función simula la generación del nombre
-  // En tu implementación real, esto vendrá del endpoint
+  // Esta función crea el nombre del dispositivo basado en los nombres de serie y un ID incremental
+  // Reglas de nombre: RED-IOT-RASP-XXXX (X es un número)
   if (!serialNumber.value) return '';
   
   // Ejemplo: IoT-{últimos 4 dígitos del serial}-{incremental}
