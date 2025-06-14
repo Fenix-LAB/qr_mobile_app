@@ -32,7 +32,7 @@
               <ion-label position="floating">Nombre del acceso</ion-label>
               <ion-input
                 v-model="accessData.name"
-                placeholder="Ej. Portón Principal, Entrada Norte"
+                placeholder=""
                 required
                 clear-input
               ></ion-input>
@@ -45,26 +45,37 @@
                   <ion-icon :icon="hardwareChipOutline" color="tertiary"></ion-icon>
                   Dispositivo IoT
                 </ion-card-title>
-                <ion-card-subtitle>Registra un nuevo dispositivo</ion-card-subtitle>
+                <ion-card-subtitle>Selecciona un dispositivo registrado</ion-card-subtitle>
               </ion-card-header>
               
               <ion-card-content>
+                <!-- Selector de dispositivos -->
                 <ion-item fill="outline" class="form-item">
-                  <ion-label position="floating">Número de serie</ion-label>
-                  <ion-input
-                    v-model="iotDevice.serialNumber"
-                    placeholder="Ingresa el código del dispositivo"
+                  <ion-icon slot="start" :icon="hardwareChipOutline" color="medium"></ion-icon>
+                  <ion-label></ion-label>
+                  <ion-select 
+                    v-model="iotDevice.serialNumber" 
+                    interface="popover"
+                    placeholder="Selecciona un dispositivo"
                     required
-                  ></ion-input>
+                  >
+                    <ion-select-option 
+                      v-for="device in availableDevices" 
+                      :key="device.id" 
+                      :value="device.serialNumber"
+                    >
+                      {{ device.name }} ({{ device.serialNumber }})
+                    </ion-select-option>
+                  </ion-select>
                 </ion-item>
-  
-                <div class="device-preview" v-if="devicePreview.name">
+
+                <div class="device-preview" v-if="iotDevice.serialNumber">
                   <ion-chip color="success">
                     <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-                    <ion-label>{{ devicePreview.name }}</ion-label>
+                    <ion-label>{{ getSelectedDeviceName() }}</ion-label>
                   </ion-chip>
                   <ion-text color="medium">
-                    <small>Dispositivo registrado automáticamente</small>
+                    <small>Dispositivo seleccionado</small>
                   </ion-text>
                 </div>
               </ion-card-content>
@@ -74,22 +85,25 @@
           <!-- Sección de ayuda -->
           <div class="help-section">
             <ion-accordion-group>
-              <ion-accordion value="instructions">
-                <ion-item slot="header" color="light">
-                  <ion-label>¿Cómo obtener el número de serie?</ion-label>
+              <ion-accordion value="help">
+                <ion-item slot="header" color="tertiary">
+                  <ion-icon :icon="informationCircleOutline" slot="start"></ion-icon>
+                  <ion-label>¿Cómo generar los QRs?</ion-label>
                 </ion-item>
-                <div slot="content" class="accordion-content">
+                <div class="accordion-content" slot="content">
+                  <p>Para generar los QRs de acceso, completa el formulario con el nombre del acceso y selecciona un dispositivo IoT registrado.</p>
+                  <p>Una vez que presiones "Generar QRs", se crearán dos códigos QR: uno para entrada y otro para salida.</p>
                   <ol>
-                    <li>Localiza la etiqueta en el dispositivo físico</li>
-                    <li>Busca el código de 12 dígitos</li>
-                    <li>Ingrésalo exactamente como aparece</li>
+                    <li>El QR de entrada permite registrar la llegada al fraccionamiento.</li>
+                    <li>El QR de salida permite registrar la salida del fraccionamiento.</li>
                   </ol>
-                  <ion-img src="/assets/iot-device-example.png" alt="Ejemplo dispositivo"></ion-img>
+                  <ion-img src="/assets/img/qr/acceso.png" alt="Ejemplo de QRs generados"></ion-img>
                 </div>
               </ion-accordion>
             </ion-accordion-group>
           </div>
         </div>
+
   
         <!-- Modal para mostrar QRs generados -->
         <ion-modal 
@@ -161,7 +175,7 @@
     IonItem, IonLabel, IonInput, IonList, IonCard,
     IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
     IonChip, IonText, IonModal, IonAccordion, IonAccordionGroup,
-    IonSkeletonText, IonImg, toastController
+    IonSkeletonText, IonImg, IonSelect, IonSelectOption, toastController
   } from '@ionic/vue';
   import {
     qrCodeOutline, walkOutline, pricetagOutline,
@@ -181,9 +195,11 @@
     serialNumber: '',
   });
   
-  const devicePreview = ref({
-    name: '',
-  });
+  const availableDevices = ref([
+    { id: 1, name: 'IoT-Gate-001', serialNumber: 'SN123456' },
+    { id: 2, name: 'IoT-Gate-002', serialNumber: 'SN789012' },
+    { id: 3, name: 'IoT-Gate-003', serialNumber: 'SN345678' }
+  ]);
   
   const generatedQrs = ref({
     entry: '',
@@ -192,50 +208,20 @@
   
   const showQRModal = ref(false);
   
+  // Método para obtener nombre del dispositivo seleccionado
+  const getSelectedDeviceName = () => {
+    const device = availableDevices.value.find(d => d.serialNumber === iotDevice.value.serialNumber);
+    return device ? device.name : 'Desconocido';
+  };
+  
   // Validación del formulario
   const isFormValid = computed(() => {
     return accessData.value.name && iotDevice.value.serialNumber;
   });
   
-  // Simular generación de nombre de dispositivo
-  const generateDeviceName = (serial: string) => {
-    return `IoT-${serial.substring(0, 4)}-${serial.substring(8)}`;
-  };
-  
-  // Registrar dispositivo IoT
-  const registerDevice = async () => {
-    if (!iotDevice.value.serialNumber) return;
-    
-    try {
-      // Simulación de API call
-      // const response = await api.registerIoTDevice(iotDevice.value.serialNumber);
-      devicePreview.value.name = generateDeviceName(iotDevice.value.serialNumber);
-      
-      const toast = await toastController.create({
-        message: 'Dispositivo registrado correctamente',
-        duration: 2000,
-        color: 'success'
-      });
-      await toast.present();
-      
-    } catch (error) {
-      const toast = await toastController.create({
-        message: 'Error registrando dispositivo',
-        duration: 2000,
-        color: 'danger'
-      });
-      await toast.present();
-    }
-  };
-  
   // Crear el acceso y generar QRs
   const createAccess = async () => {
     try {
-      // Primero registrar el dispositivo si no tiene nombre
-      if (!devicePreview.value.name) {
-        await registerDevice();
-      }
-  
       // Simulación de API call para crear acceso
       // const response = await api.createAccess({
       //   name: accessData.value.name,
@@ -284,6 +270,7 @@
   </script>
   
   <style scoped>
+  /* Tus estilos existentes se mantienen igual */
   .form-container {
     max-width: 800px;
     margin: 0 auto;
