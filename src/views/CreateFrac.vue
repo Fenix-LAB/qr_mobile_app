@@ -71,41 +71,56 @@ import {
   IonButton, IonIcon, IonButtons, IonBackButton, IonFab, IonFabButton
 } from '@ionic/vue';
 import { addOutline, businessOutline, qrCodeOutline, hardwareChipOutline } from 'ionicons/icons';
+import { obtenerFraccionamientos } from '@/services/superAdminService';
 // import { obtenerFraccionamientos } from '@/services/fraccionamientoService';
 
 const router = useRouter();
 
 // Datos de ejemplo (reemplazar con llamada API real)
-const fraccionamientos = ref([
-  {
-    id: 1,
-    nombre: "Las Lomas",
-    ubicacion: "Av. Principal 123",
-    descripcion: "Fraccionamiento residencial de lujo",
-    accesos: [
-      { id: 1, tipo: "entrada", dispositivo: "IoT-001" },
-      { id: 2, tipo: "salida", dispositivo: "IoT-002" }
-    ]
-  },
-  {
-    id: 2,
-    nombre: "Bosques del Valle",
-    ubicacion: "Calle Bosques 456",
-    descripcion: "Área residencial con áreas verdes",
-    accesos: [
-      { id: 3, tipo: "entrada", dispositivo: "IoT-003" }
-    ]
-  }
-]);
+// const fraccionamientos = ref([
+//   {
+//     id: 1,
+//     nombre: "Las Lomas",
+//     ubicacion: "Av. Principal 123",
+//     descripcion: "Fraccionamiento residencial de lujo",
+//     accesos: [
+//       { id: 1, tipo: "entrada", dispositivo: "IoT-001" },
+//       { id: 2, tipo: "salida", dispositivo: "IoT-002" }
+//     ]
+//   },
+//   {
+//     id: 2,
+//     nombre: "Bosques del Valle",
+//     ubicacion: "Calle Bosques 456",
+//     descripcion: "Área residencial con áreas verdes",
+//     accesos: [
+//       { id: 3, tipo: "entrada", dispositivo: "IoT-003" }
+//     ]
+//   }
+// ]);
 
+const fraccionamientos = ref<{
+  id: number;
+  nombre: string;
+  ubicacion: string;
+  descripcion: string;
+  accesos: { id: number}[];
+}[]>([]);
+
+const fetchAllFraccionamientos = async () => {
+  const response = await obtenerFraccionamientos();
+  console.log('Fraccionamientos obtenidos:', response);
+  fraccionamientos.value = response.map((fracc: any) => ({
+    id: fracc.id,
+    nombre: fracc.name,
+    ubicacion: fracc.location,
+    descripcion: fracc.description,
+    accesos: fracc.iot_devices || [] // Asegurarse de que accesos sea un array
+  }));
+};
 // Cargar fraccionamientos al montar el componente
 onMounted(async () => {
-  // try {
-  //   const response = await obtenerFraccionamientos();
-  //   fraccionamientos.value = response.data;
-  // } catch (error) {
-  //   console.error('Error cargando fraccionamientos:', error);
-  // }
+  await fetchAllFraccionamientos();
 });
 
 const navigateToAddAccess = (fraccId: number) => {
