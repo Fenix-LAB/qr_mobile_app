@@ -34,3 +34,8 @@ ionic cap run android
 
 .\gradlew assembleDebug
 ```
+
+Opne dev console on safari (mac)
+```bash
+Cmd + Option + C
+```
