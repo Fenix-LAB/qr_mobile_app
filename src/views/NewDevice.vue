@@ -115,6 +115,7 @@ import {
   informationCircleOutline, checkmarkCircleOutline,
   warningOutline, lockClosedOutline, shieldCheckmarkOutline
 } from 'ionicons/icons';
+import  { obtenerDispositivosIoT, crearDispositivoIoT } from '@/services/newDeviceService'; // Asegúrate de tener estas funciones en tu API
 
 const router = useRouter();
 const serialNumber = ref('');
@@ -125,15 +126,36 @@ const validateSerial = () => {
   assignedName.value = '';
 };
 
-const generateDeviceName = () => {
+const getLastDeviceName = async () => {
+  try {
+    // Simulación de llamada a API para obtener el último dispositivo registrado
+    // const lastDevice = await obtenerDispositivosIoT();
+    const response = await obtenerDispositivosIoT();
+    if (response && response.length > 0) {
+      // Aquí deberías extraer el nombre del último dispositivo
+      // Por ejemplo, si el último dispositivo tiene un campo 'name'
+      console.log('Último dispositivo:', response[0].device_name);
+      return response[0].device_name; // Ajusta según tu estructura de datos
+    }
+    // En una implementación real, deberías obtener el último ID y generar un nombre basado en eso
+    // Aquí simplemente retornamos un valor simulado
+    // return 'IoT-0001'; // Simulación de nombre
+  } catch (error) {
+    console.error('Error al obtener el último dispositivo:', error);
+    return '';
+  }
+};
+
+const generateDeviceName = async () => {
   // Esta función crea el nombre del dispositivo basado en los nombres de serie y un ID incremental
   // Reglas de nombre: RED-IOT-RASP-XXXX (X es un número)
   if (!serialNumber.value) return '';
   
   // Ejemplo: IoT-{últimos 4 dígitos del serial}-{incremental}
-  const lastFour = serialNumber.value.slice(-4);
-  const randomIncremental = Math.floor(Math.random() * 100); // Esto sería el último ID+1 en tu caso
-  return `IoT-${lastFour}-${randomIncremental}`;
+  const lastDeviceName = await getLastDeviceName();
+  const incrementalId = lastDeviceName ? parseInt(lastDeviceName.split('-').pop() || '0') + 1 : 1; //Property 'split' does not exist on type 'Promise<any>'
+  // const serialPart = serialNumber.value.slice(-4); // Últimos 4 dígitos del número de serie
+  return `RED-IOT-RASP-${incrementalId.toString().padStart(4, '0')}`;
 };
 
 const registerDevice = async () => {
@@ -141,9 +163,25 @@ const registerDevice = async () => {
     // Simulación de llamada a API
     // const response = await api.registerIoTDevice(serialNumber.value);
     
-    // En una implementación real, el nombre vendría del endpoint
-    assignedName.value = generateDeviceName();
-    
+    // Crear novo dispositivo IoT
+    assignedName.value = await generateDeviceName();
+
+    // Llamar a la función para crear el dispositivo IoT
+    console.log('Registrando dispositivo con nombre:', assignedName.value, 'y número de serie:', serialNumber.value);
+    const response = await crearDispositivoIoT(assignedName.value, 'Raspberry Pi', serialNumber.value);
+
+    if (response.errors) {
+      console.error('Error al crear dispositivo:', response.errors);
+      const toast = await toastController.create({
+        message: 'Error al registrar dispositivo',
+        duration: 3000,
+        color: 'danger',
+        position: 'top'
+      });
+      await toast.present();
+      return;
+    }
+
     // Mostrar feedback al usuario
     const toast = await toastController.create({
       message: 'Dispositivo registrado exitosamente',

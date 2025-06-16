@@ -5,7 +5,7 @@ export const obtenerDispositivosIoT = async () => {
     const query = `
         query MyQuery {
             qr_shield_iot_device(limit: 1, order_by: {id: desc}) {
-                id
+                device_name
             }
         }
     `;
