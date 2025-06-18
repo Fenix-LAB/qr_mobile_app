@@ -184,7 +184,11 @@
     checkmarkDoneOutline, informationCircleOutline
   } from 'ionicons/icons';
 
-import { obtenerDispositivosDisponibles, crearAcceso, obtenerNombreFraccionamiento } from '@/services/newAccessService'; // Asegúrate de tener estos servicios implementados
+import { obtenerDispositivosDisponibles, 
+        crearAcceso,
+        obtenerNombreFraccionamiento,
+        actualizarDispositivoIoT
+      } from '@/services/newAccessService'; // Asegúrate de tener estos servicios implementados
 
   const router = useRouter();
   const route = useRoute();
@@ -277,6 +281,22 @@ import { obtenerDispositivosDisponibles, crearAcceso, obtenerNombreFraccionamien
         });
         await toast.present();
         throw new Error('Error al crear el acceso');
+      }
+
+      // Actualizar dispositivo IoT con el nuevo acceso
+      const response_update = await actualizarDispositivoIoT(
+        getSelectedDeviceName().id,
+        Number(fracId)
+      );
+
+      if (response_update.errors) {
+        const toast = await toastController.create({
+          message: 'Error al actualizar el dispositivo IoT',
+          duration: 2000,
+          color: 'danger'
+        });
+        await toast.present();
+        throw new Error('Error al actualizar el dispositivo IoT');
       }
 
       // Generar QRs

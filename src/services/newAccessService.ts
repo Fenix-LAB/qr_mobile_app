@@ -35,6 +35,21 @@ export const crearAcceso = async (name: string, iot_device_id: string, frac_id: 
     return response?.data?.insert_qr_shield_access_group || null;
 }
 
+// Actualizar iot device para que pertenezca a un fraccionamiento
+export const actualizarDispositivoIoT = async (iot_device_id: string, frac_id: number) => {
+    const mutation = `
+        mutation MyMutation {
+            update_qr_shield_iot_device_by_pk(pk_columns: {id: ${iot_device_id}}, _set: {frac_id: ${frac_id}}) {
+                id
+            }
+        }
+    `;
+    const response = await graphqlRequest(mutation);
+
+    //console.log("Respuesta GraphQL:", response.data.update_qr_shield_iot_device_by_pk); // 👈 Verifica qué devuelve la API
+    return response?.data?.update_qr_shield_iot_device_by_pk || null;
+}
+
 // Obtener nombre del fraccionamiento
 export const obtenerNombreFraccionamiento = async (frac_id: number) => {
     const query = `
