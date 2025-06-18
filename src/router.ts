@@ -98,7 +98,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/NewFrac.vue')
       },
       {
-        path: 'newaccess',
+        path: 'newaccess/:fraccId',
         name: 'newaccess',
         component: () => import('@/views/NewAccess.vue')
       },

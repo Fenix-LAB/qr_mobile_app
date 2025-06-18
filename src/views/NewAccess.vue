@@ -167,8 +167,8 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { ref, computed, onMounted } from 'vue';
+  import { useRouter, useRoute } from 'vue-router';
   import {
     IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
     IonButton, IonIcon, IonButtons, IonBackButton,
@@ -183,9 +183,13 @@
     downloadOutline, enterOutline, exitOutline,
     checkmarkDoneOutline, informationCircleOutline
   } from 'ionicons/icons';
-  
+
+import { obtenerDispositivosDisponibles, crearAcceso, obtenerNombreFraccionamiento } from '@/services/newAccessService'; // Asegúrate de tener estos servicios implementados
+
   const router = useRouter();
-  
+  const route = useRoute();
+  const fracId = route.params.fraccId;
+  console.log('Fraccionamiento ID:', fracId);
   // Datos del formulario
   const accessData = ref({
     name: '',
@@ -195,11 +199,11 @@
     serialNumber: '',
   });
   
-  const availableDevices = ref([
-    { id: 1, name: 'IoT-Gate-001', serialNumber: 'SN123456' },
-    { id: 2, name: 'IoT-Gate-002', serialNumber: 'SN789012' },
-    { id: 3, name: 'IoT-Gate-003', serialNumber: 'SN345678' }
-  ]);
+  const availableDevices = ref<{
+    id: string,
+    name: string,
+    serialNumber: string
+  }[]>([]);
   
   const generatedQrs = ref({
     entry: '',
@@ -207,31 +211,91 @@
   });
   
   const showQRModal = ref(false);
-  
-  // Método para obtener nombre del dispositivo seleccionado
-  const getSelectedDeviceName = () => {
-    const device = availableDevices.value.find(d => d.serialNumber === iotDevice.value.serialNumber);
-    return device ? device.name : 'Desconocido';
+
+  // Lista de dispositivos disponibles
+  const fetchAvailableDevices = async () => {
+    try {
+      const response = await obtenerDispositivosDisponibles();
+      availableDevices.value = response.map((device: any) => ({
+        id: device.id,
+        name: device.device_name,
+        serialNumber: device.serial_number
+      }));
+      console.log('Dispositivos disponibles:', availableDevices.value);
+    } catch (error) {
+      const toast = await toastController.create({
+        message: 'Error al cargar dispositivos IoT',
+        duration: 2000,
+        color: 'danger'
+      });
+      await toast.present();
+    }
+  };
+
+  // Crear string de QR para el dispositivo seleccionado
+  const createQrString = async (access_name: string, device_name: string, frac_id: number, is_entry: boolean) => {
+
+    // Obtenemos el nombre del fraccionamiento
+    const frac_name = await obtenerNombreFraccionamiento(frac_id);
+    console.log('Nombre del fraccionamiento:', frac_name);
+
+    return `${frac_name.name}-${access_name}-${device_name}-${is_entry ? 'ENTRADA' : 'SALIDA'}`;
   };
   
+  // Método para obtener nombre y id del dispositivo seleccionado
+  const getSelectedDeviceName = () => {
+    const device = availableDevices.value.find(d => d.serialNumber === iotDevice.value.serialNumber);
+    return device ? { name: device.name, id: device.id } : { name: 'Desconocido', id: '' };
+  };
+
   // Validación del formulario
   const isFormValid = computed(() => {
-    return accessData.value.name && iotDevice.value.serialNumber;
+    // return accessData.value.name && iotDevice.value.serialNumber;
+    return accessData.value.name.trim() !== '' && iotDevice.value.serialNumber.trim() !== '';
   });
   
   // Crear el acceso y generar QRs
   const createAccess = async () => {
     try {
-      // Simulación de API call para crear acceso
-      // const response = await api.createAccess({
+      // Crear acceso
+      // console.log('Creando acceso con datos:', {
       //   name: accessData.value.name,
-      //   deviceSerial: iotDevice.value.serialNumber
+      //   iot_device_id: getSelectedDeviceName().id,
+      //   frac_id: fracId
       // });
-  
+      const response = await crearAcceso(
+        accessData.value.name,
+        getSelectedDeviceName().id,
+        Number(fracId)
+      );
+
+      if (response.errors) {
+        const toast = await toastController.create({
+          message: 'Error al crear el acceso',
+          duration: 2000,
+          color: 'danger'
+        });
+        await toast.present();
+        throw new Error('Error al crear el acceso');
+      }
+
+      // Generar QRs
+      const qrStringEntry = await createQrString(
+        accessData.value.name,
+        getSelectedDeviceName().name,
+        Number(fracId),
+        true
+      );
+      const qrStringExit = await createQrString(
+        accessData.value.name,
+        getSelectedDeviceName().name,
+        Number(fracId),
+        false
+      );
       // Datos simulados
       generatedQrs.value = {
-        entry: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ENTRADA-' + Math.random().toString(36).substring(2),
-        exit: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=SALIDA-' + Math.random().toString(36).substring(2)
+        entry: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + qrStringEntry,
+        exit: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + qrStringExit
       };
   
       showQRModal.value = true;
@@ -245,6 +309,11 @@
       await toast.present();
     }
   };
+
+  // Cargar dispositivos disponibles al montar el componente
+  onMounted(() => {
+    fetchAvailableDevices();
+  });
   
   // Descargar QR individual
   const downloadQr = (qrData: string, type: string) => {
