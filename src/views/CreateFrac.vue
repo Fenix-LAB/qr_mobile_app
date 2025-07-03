@@ -12,7 +12,12 @@
     <ion-content class="ion-padding">
       <!-- Lista de fraccionamientos -->
       <div v-if="fraccionamientos.length > 0">
-        <ion-card v-for="fracc in fraccionamientos" :key="fracc.id" class="fracc-card">
+        <ion-card 
+          v-for="fracc in fraccionamientos" 
+          :key="fracc.id" 
+          class="fracc-card"
+          @click="navigateToFraccionamiento(fracc.id)"
+        >
           <ion-card-header>
             <ion-card-title>{{ fracc.nombre }}</ion-card-title>
             <ion-card-subtitle>{{ fracc.ubicacion }}</ion-card-subtitle>
@@ -27,7 +32,7 @@
               
               <ion-button 
                 size="small" 
-                @click="navigateToAddAccess(fracc.id)"
+                @click.stop="navigateToAddAccess(fracc.id)"
                 class="add-access-btn"
               >
                 <ion-icon slot="start" :icon="addOutline"></ion-icon>
@@ -51,13 +56,13 @@
           <ion-icon :icon="addOutline"></ion-icon>
         </ion-fab-button>
       </ion-fab>
+      
       <!-- Botón para crear un dispositivo -->
       <ion-fab vertical="bottom" horizontal="start" slot="fixed">
         <ion-fab-button router-link="/tabs/newdevice">
           <ion-icon :icon="hardwareChipOutline"></ion-icon>
         </ion-fab-button>
       </ion-fab>
-
     </ion-content>
   </ion-page>
 </template>
@@ -72,32 +77,8 @@ import {
 } from '@ionic/vue';
 import { addOutline, businessOutline, qrCodeOutline, hardwareChipOutline } from 'ionicons/icons';
 import { obtenerFraccionamientos } from '@/services/superAdminService';
-// import { obtenerFraccionamientos } from '@/services/fraccionamientoService';
 
 const router = useRouter();
-
-// Datos de ejemplo (reemplazar con llamada API real)
-// const fraccionamientos = ref([
-//   {
-//     id: 1,
-//     nombre: "Las Lomas",
-//     ubicacion: "Av. Principal 123",
-//     descripcion: "Fraccionamiento residencial de lujo",
-//     accesos: [
-//       { id: 1, tipo: "entrada", dispositivo: "IoT-001" },
-//       { id: 2, tipo: "salida", dispositivo: "IoT-002" }
-//     ]
-//   },
-//   {
-//     id: 2,
-//     nombre: "Bosques del Valle",
-//     ubicacion: "Calle Bosques 456",
-//     descripcion: "Área residencial con áreas verdes",
-//     accesos: [
-//       { id: 3, tipo: "entrada", dispositivo: "IoT-003" }
-//     ]
-//   }
-// ]);
 
 const fraccionamientos = ref<{
   id: number;
@@ -115,29 +96,35 @@ const fetchAllFraccionamientos = async () => {
     nombre: fracc.name,
     ubicacion: fracc.location,
     descripcion: fracc.description,
-    accesos: fracc.iot_devices || [] // Asegurarse de que accesos sea un array
+    accesos: fracc.iot_devices || []
   }));
 };
-// Cargar fraccionamientos al montar el componente
+
+// Navegar a vista detallada del fraccionamiento
+const navigateToFraccionamiento = (fraccId: number) => {
+  router.push({ name: 'fraccionamiento-details', params: { id: fraccId } });
+};
+
+// Navegar a añadir acceso (con stop propagation para evitar conflictos)
+const navigateToAddAccess = (fraccId: number) => {
+  router.push({ name: 'newaccess', params: { fraccId } });
+};
+
 onMounted(async () => {
   await fetchAllFraccionamientos();
 });
-
-const navigateToAddAccess = (fraccId: number) => {
-  // router.push(`/fraccionamiento/${fraccId}/accesos/nuevo`);
-  console.log(`Navegando a añadir acceso para fraccionamiento ID: ${fraccId}`);
-  router.push({ name: 'newaccess', params: { fraccId } });
-};
 </script>
 
 <style scoped>
 .fracc-card {
   margin-bottom: 16px;
   transition: transform 0.2s;
+  cursor: pointer;
 }
 
 .fracc-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .access-info {

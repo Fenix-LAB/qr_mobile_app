@@ -107,6 +107,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'newdevice',
         component: () => import('@/views/NewDevice.vue')
       },
+      {
+        path: 'fraccionamiento/:id',
+        name: 'fraccionamiento-details',
+        component: () => import('@/views/FracDetails.vue')
+      }
     ]
   },
   { path: '/', redirect: 'tutorial' }
