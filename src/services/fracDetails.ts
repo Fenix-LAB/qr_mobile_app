@@ -9,7 +9,7 @@ export const obtenerFraccionamientoPorId = async (id: number) => {
                 name
                 location
                 description
-                iot_devices {
+                iot_devices(where: {access_group: {_not: {id: {_is_null: true}}}}) {
                 access_group {
                     name
                     qr_entry {
@@ -76,4 +76,18 @@ export const eliminarAccesoPorId = async (id: number) => {
     const response = await graphqlRequest(mutation);
 
     return response?.data?.delete_qr_shield_access_group_by_pk || null;
+};
+
+// Eliminar id de fraccionamiento de un dispositivo IoT
+export const eliminarDispositivoIoTDeFrac = async (iot_device_id: number) => {
+    const mutation = `
+        mutation MyMutation {
+            update_qr_shield_iot_device_by_pk(pk_columns: {id: ${iot_device_id}}, _set: {frac_id: null}) {
+                id
+            }
+        }
+    `;
+    const response = await graphqlRequest(mutation);
+
+    return response?.data?.update_qr_shield_iot_device_by_pk || null;
 };

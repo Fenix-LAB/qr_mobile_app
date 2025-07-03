@@ -185,6 +185,8 @@ import { obtenerFraccionamientoPorId ,
          actualizarFraccionamiento,
          eliminarFraccionamientoPorId,
          eliminarAccesoPorId,
+         eliminarDispositivoIoTDeFrac,
+
 } from '@/services/fracDetails';
 import { id } from 'date-fns/locale';
 
@@ -320,6 +322,10 @@ const obtenerDetalleFraccionamiento = async (id: number): Promise<void> => {
         }))
         }))[0];
 
+        console.log('Fraccionamientos obtenido:', fraccionamiento.value);
+
+        console.log('Accesos obtenidos:', fraccionamiento.value.accesos);
+
     
     // Datos de ejemplo (eliminar en producción):
     // fraccionamiento.value = {
@@ -403,13 +409,18 @@ const regenerarQRs = async (accesoId: number): Promise<void> => {
 };
 
 // Editar acceso
-const eliminarAcceso = (accesoId: number): void => {
+const eliminarAcceso = async (accesoId: number): Promise<void> => {
   try {
     // Ejemplo de llamada API:
     // await api.eliminarAcceso(accesoId);
-    
-    eliminarAccesoPorId(accesoId);
-    
+
+    console.log('Eliminando acceso:', accesoId);
+
+    const response = await eliminarAccesoPorId(accesoId);
+
+    await eliminarDispositivoIoTDeFrac(fraccionamiento.value.accesos.find(a => a.id === accesoId)?.dispositivo.id || 0);
+
+    console.log('response', response);
     // Actualizar la lista de accesos
     fraccionamiento.value.accesos = fraccionamiento.value.accesos.filter(a => a.id !== accesoId);
     console.log('Acceso eliminado:', accesoId);
