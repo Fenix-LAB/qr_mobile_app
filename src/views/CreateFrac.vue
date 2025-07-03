@@ -102,6 +102,7 @@ const fetchAllFraccionamientos = async () => {
 
 // Navegar a vista detallada del fraccionamiento
 const navigateToFraccionamiento = (fraccId: number) => {
+  // console.log('Navegando a fraccionamiento con ID:', fraccId); // undefined :(
   router.push({ name: 'fraccionamiento-details', params: { id: fraccId } });
 };
 

@@ -181,6 +181,7 @@ import {
   downloadOutline, enterOutline, exitOutline,
   checkmarkDoneOutline
 } from 'ionicons/icons';
+import { obtenerFraccionamientoPorId } from '@/services/fracDetails';
 
 // Definición de tipos
 type Dispositivo = {
@@ -234,38 +235,118 @@ const obtenerDetalleFraccionamiento = async (id: number): Promise<void> => {
     // Ejemplo de llamada API:
     // const response = await api.getFraccionamiento(id);
     // fraccionamiento.value = response.data;
+
+    // Respuesta de graph ql (info ofiicial):
+    // {
+        // "data": {
+        //     "qr_shield_frac": [
+        //     {
+        //         "id": 1,
+        //         "name": "Lomas Verdes",
+        //         "location": "Av. San Juan, Colonia ABC, Puebla",
+        //         "description": "Fraccionamiento CU BUAP",
+        //         "iot_devices": [
+        //         {
+        //             "access_group": {
+        //             "name": "Acceso Prueba 1",
+        //             "qr_entry": null,
+        //             "qr_exit": null,
+        //             "id": 2
+        //             },
+        //             "device_name": "RED-IOT-RASP-0001",
+        //             "serial_number": "123456789",
+        //             "id": 1
+        //         },
+        //         {
+        //             "access_group": {
+        //             "name": "Prueba 2",
+        //             "qr_entry": null,
+        //             "qr_exit": null,
+        //             "id": 3
+        //             },
+        //             "device_name": "RED-IOT-RASP-2UIU-0002",
+        //             "serial_number": "213312UIU",
+        //             "id": 2
+        //         },
+        //         {
+        //             "access_group": {
+        //             "name": "Acceso Prueba 3",
+        //             "qr_entry": null,
+        //             "qr_exit": null,
+        //             "id": 4
+        //             },
+        //             "device_name": "RED-IOT-RASP-0003",
+        //             "serial_number": "123456HJK",
+        //             "id": 3
+        //         },
+        //         {
+        //             "access_group": {
+        //             "name": "Acceso Prueba 5",
+        //             "qr_entry": null,
+        //             "qr_exit": null,
+        //             "id": 5
+        //             },
+        //             "device_name": "RED-IOT-RASP-0004",
+        //             "serial_number": "1234",
+        //             "id": 4
+        //         }
+        //         ]
+        //     }
+        //     ]
+        // }
+        // }
+    
+    const response = await obtenerFraccionamientoPorId(id);
+    fraccionamiento.value = response.map((response: any) => ({
+        id: response.id,
+        nombre: response.name,
+        ubicacion: response.location,
+        descripcion: response.description,
+        accesos: response.iot_devices.map((device: any) => ({
+            id: device.id,
+            nombre: device.access_group.name,
+            dispositivo: {
+            id: device.id,
+            nombre: device.device_name,
+            serialNumber: device.serial_number
+            },
+            qrEntry: device.access_group.qr_entry || '',
+            qrExit: device.access_group.qr_exit || ''
+        }))
+        }))[0];
+
     
     // Datos de ejemplo (eliminar en producción):
-    fraccionamiento.value = {
-      id: 1,
-      nombre: 'Las Lomas',
-      ubicacion: 'Av. Principal 123',
-      descripcion: 'Fraccionamiento residencial de lujo',
-      accesos: [
-        {
-          id: 1,
-          nombre: 'Portón Principal',
-          dispositivo: {
-            id: 1,
-            nombre: 'IoT-Gate-001',
-            serialNumber: 'SN123456'
-          },
-          qrEntry: 'https://api.qrserver.com/v1/create-qr-code/?data=ENTRADA-1',
-          qrExit: 'https://api.qrserver.com/v1/create-qr-code/?data=SALIDA-1'
-        },
-        {
-          id: 2,
-          nombre: 'Entrada Sur',
-          dispositivo: {
-            id: 2,
-            nombre: 'IoT-Gate-002',
-            serialNumber: 'SN789012'
-          },
-          qrEntry: 'https://api.qrserver.com/v1/create-qr-code/?data=ENTRADA-2',
-          qrExit: 'https://api.qrserver.com/v1/create-qr-code/?data=SALIDA-2'
-        }
-      ]
-    };
+    // fraccionamiento.value = {
+    //   id: 1,
+    //   nombre: 'Las Lomas',
+    //   ubicacion: 'Av. Principal 123',
+    //   descripcion: 'Fraccionamiento residencial de lujo',
+    //   accesos: [
+    //     {
+    //       id: 1,
+    //       nombre: 'Portón Principal',
+    //       dispositivo: {
+    //         id: 1,
+    //         nombre: 'IoT-Gate-001',
+    //         serialNumber: 'SN123456'
+    //       },
+    //       qrEntry: 'https://api.qrserver.com/v1/create-qr-code/?data=ENTRADA-1',
+    //       qrExit: 'https://api.qrserver.com/v1/create-qr-code/?data=SALIDA-1'
+    //     },
+    //     {
+    //       id: 2,
+    //       nombre: 'Entrada Sur',
+    //       dispositivo: {
+    //         id: 2,
+    //         nombre: 'IoT-Gate-002',
+    //         serialNumber: 'SN789012'
+    //       },
+    //       qrEntry: 'https://api.qrserver.com/v1/create-qr-code/?data=ENTRADA-2',
+    //       qrExit: 'https://api.qrserver.com/v1/create-qr-code/?data=SALIDA-2'
+    //     }
+    //   ]
+    // };
   } catch (error) {
     console.error('Error obteniendo detalle:', error);
   }
@@ -351,6 +432,7 @@ const downloadAllQrs = (): void => {
 
 onMounted(() => {
   const id = Number(route.params.id);
+  console.log('ID del fraccionamiento:', id);
   if (id) {
     obtenerDetalleFraccionamiento(id);
   }
