@@ -181,7 +181,10 @@ import {
   downloadOutline, enterOutline, exitOutline,
   checkmarkDoneOutline
 } from 'ionicons/icons';
-import { obtenerFraccionamientoPorId } from '@/services/fracDetails';
+import { obtenerFraccionamientoPorId ,
+         actualizarFraccionamiento,
+} from '@/services/fracDetails';
+import { id } from 'date-fns/locale';
 
 // Definición de tipos
 type Dispositivo = {
@@ -361,7 +364,14 @@ const guardarCambios = async (): Promise<void> => {
     //   ubicacion: fraccionamiento.value.ubicacion,
     //   descripcion: fraccionamiento.value.descripcion
     // });
-    
+
+    await actualizarFraccionamiento(
+        fraccionamiento.value.id,
+        fraccionamiento.value.nombre,
+        fraccionamiento.value.ubicacion,
+        fraccionamiento.value.descripcion
+    );
+
     console.log('Cambios guardados:', fraccionamiento.value);
   } catch (error) {
     console.error('Error guardando cambios:', error);

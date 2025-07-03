@@ -32,3 +32,20 @@ export const obtenerFraccionamientoPorId = async (id: number) => {
 
     return response?.data?.qr_shield_frac || {};
 };
+
+// actualizarFraccionamiento
+export const actualizarFraccionamiento = async (id: number, name: string, location: string, description: string) => {
+    const mutation = `
+        mutation MyMutation {
+            update_qr_shield_frac_by_pk(pk_columns: {id: ${id}}, _set: {name: "${name}", location: "${location}", description: "${description}"}) {
+                id
+                name
+                location
+                description
+            }
+        }
+    `;
+    const response = await graphqlRequest(mutation);
+
+    return response?.data?.update_qr_shield_frac_by_pk || null;
+};
