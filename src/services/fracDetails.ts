@@ -63,3 +63,17 @@ export const eliminarFraccionamientoPorId = async (id: number) => {
 
     return response?.data?.delete_qr_shield_frac_by_pk || null;
 };
+
+// Eliminar un acceso por ID
+export const eliminarAccesoPorId = async (id: number) => {
+    const mutation = `
+        mutation MyMutation {
+            delete_qr_shield_access_group_by_pk(id: ${id}) {
+                id
+            }
+        }
+    `;
+    const response = await graphqlRequest(mutation);
+
+    return response?.data?.delete_qr_shield_access_group_by_pk || null;
+};

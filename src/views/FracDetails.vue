@@ -184,6 +184,7 @@ import {
 import { obtenerFraccionamientoPorId ,
          actualizarFraccionamiento,
          eliminarFraccionamientoPorId,
+         eliminarAccesoPorId,
 } from '@/services/fracDetails';
 import { id } from 'date-fns/locale';
 
@@ -403,7 +404,18 @@ const regenerarQRs = async (accesoId: number): Promise<void> => {
 
 // Editar acceso
 const eliminarAcceso = (accesoId: number): void => {
-  console.log('Eliminar acceso con ID:', accesoId);
+  try {
+    // Ejemplo de llamada API:
+    // await api.eliminarAcceso(accesoId);
+    
+    eliminarAccesoPorId(accesoId);
+    
+    // Actualizar la lista de accesos
+    fraccionamiento.value.accesos = fraccionamiento.value.accesos.filter(a => a.id !== accesoId);
+    console.log('Acceso eliminado:', accesoId);
+  } catch (error) {
+    console.error('Error eliminando acceso:', error);
+  }
 };
 
 // Confirmar eliminación
