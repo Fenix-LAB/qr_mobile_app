@@ -71,8 +71,8 @@
               <ion-button slot="end" fill="clear" @click="regenerarQRs(acceso.id)">
                 <ion-icon :icon="refreshOutline" color="warning"></ion-icon>
               </ion-button>
-              <ion-button slot="end" fill="clear" @click="editarAcceso(acceso.id)">
-                <ion-icon :icon="createOutline" color="primary"></ion-icon>
+              <ion-button slot="end" fill="clear" @click="eliminarAcceso(acceso.id)">
+                <ion-icon :icon="trashOutline" color="danger"></ion-icon>
               </ion-button>
             </ion-item>
           </ion-list>
@@ -401,8 +401,8 @@ const regenerarQRs = async (accesoId: number): Promise<void> => {
 };
 
 // Editar acceso
-const editarAcceso = (accesoId: number): void => {
-  router.push(`/acceso/${accesoId}/editar`);
+const eliminarAcceso = (accesoId: number): void => {
+  console.log('Eliminar acceso con ID:', accesoId);
 };
 
 // Confirmar eliminación
