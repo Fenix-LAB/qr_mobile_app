@@ -49,3 +49,17 @@ export const actualizarFraccionamiento = async (id: number, name: string, locati
 
     return response?.data?.update_qr_shield_frac_by_pk || null;
 };
+
+// Eliminar un fraccionamiento y sus dispositivos IoT y sus accesos y si grupo de acceso y sus QR
+export const eliminarFraccionamientoPorId = async (id: number) => {
+    const mutation = `
+        mutation MyMutation {
+            delete_qr_shield_frac_by_pk(id: ${id}) {
+                id
+            }
+        }
+    `;
+    const response = await graphqlRequest(mutation);
+
+    return response?.data?.delete_qr_shield_frac_by_pk || null;
+};

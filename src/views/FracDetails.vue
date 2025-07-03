@@ -183,6 +183,7 @@ import {
 } from 'ionicons/icons';
 import { obtenerFraccionamientoPorId ,
          actualizarFraccionamiento,
+         eliminarFraccionamientoPorId,
 } from '@/services/fracDetails';
 import { id } from 'date-fns/locale';
 
@@ -416,6 +417,8 @@ const eliminarFraccionamiento = async (): Promise<void> => {
     // Ejemplo de llamada API:
     // await api.eliminarFraccionamiento(fraccionamiento.value.id);
     // router.push('/admin/fraccionamientos');
+
+    await eliminarFraccionamientoPorId(fraccionamiento.value.id);
     
     console.log('Fraccionamiento eliminado:', fraccionamiento.value.id);
     router.push('/admin/fraccionamientos');
