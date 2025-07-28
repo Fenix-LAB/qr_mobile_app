@@ -1,16 +1,17 @@
 import { graphqlRequest } from "./api";
 
-// Obyener todos los IOT devices disponibbles (GraphQL)
+// Obtener todos los IOT devices disponibles (GraphQL)
 export const obtenerDispositivosDisponibles = async () => {
     const query = `
         query MyQuery {
-            qr_shield_iot_device(where: {frac_id: {_is_null: true}}) {
+            qr_shield_iot_device(where: {
+                frac_id: {_is_null: true}
+            }) {
                 id
                 device_name
                 serial_number
             }
         }
-
     `;
     const response = await graphqlRequest(query);
 
