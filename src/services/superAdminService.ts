@@ -4,7 +4,7 @@ import { graphqlRequest } from "./api";
 export const obtenerFraccionamientos = async () => {
     const query = `
         query MyQuery {
-            qr_shield_frac(where: {id: {_eq: ${1}}}) {
+            qr_shield_frac(where: {id: {_is_null: false}}) {
                 id
                 name
                 location
