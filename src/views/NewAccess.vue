@@ -187,8 +187,12 @@
 import { obtenerDispositivosDisponibles, 
         crearAcceso,
         obtenerNombreFraccionamiento,
-        actualizarDispositivoIoT
+        actualizarDispositivoIoT,
+        saveQrExitString,
+        saveQrEntryString,
+        vincularAccesoConQrs
       } from '@/services/newAccessService'; // Asegúrate de tener estos servicios implementados
+import { fr } from 'date-fns/locale';
 
   const router = useRouter();
   const route = useRoute();
@@ -267,20 +271,21 @@ import { obtenerDispositivosDisponibles,
       //   iot_device_id: getSelectedDeviceName().id,
       //   frac_id: fracId
       // });
+      console.log('Creando acceso con datos:', accessData.value.name, getSelectedDeviceName().id, fracId);
       const response = await crearAcceso(
         accessData.value.name,
-        getSelectedDeviceName().id,
+        Number(getSelectedDeviceName().id),
         Number(fracId)
       );
 
       if (response.errors) {
         const toast = await toastController.create({
-          message: 'Error al crear el acceso',
+          message: (response.errors[0].message || 'Error al crear el acceso'),
           duration: 2000,
           color: 'danger'
         });
         await toast.present();
-        throw new Error('Error al crear el acceso');
+        throw new Error(response.errors[0].message || 'Error al crear el acceso');
       }
 
       // Actualizar dispositivo IoT con el nuevo acceso
@@ -299,6 +304,8 @@ import { obtenerDispositivosDisponibles,
         throw new Error('Error al actualizar el dispositivo IoT');
       }
 
+      console.log('Acceso creado:', response);
+
       // Generar QRs
       const qrStringEntry = await createQrString(
         accessData.value.name,
@@ -312,6 +319,26 @@ import { obtenerDispositivosDisponibles,
         Number(fracId),
         false
       );
+
+      // Guardar el string de QR de entrada y salida
+      const id_entry = await saveQrEntryString(
+        qrStringEntry,
+        Number(fracId),
+      );
+      const id_exit = await saveQrExitString(
+        qrStringExit,
+        Number(fracId),
+      );
+
+      console.log('QRs guardados:', { id_entry, id_exit });
+
+      // Vinculación del dispositivo IoT con el acceso
+      await vincularAccesoConQrs(
+        response.id,
+        id_entry,
+        id_exit,
+      );
+
       // Datos simulados
       generatedQrs.value = {
         entry: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + qrStringEntry,
